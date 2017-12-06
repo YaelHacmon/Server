@@ -12,7 +12,11 @@ using namespace std;
 
 int main(){
 	Server server("config.txt");
+	cout << "constructed\n";
+
 	server.start();
+
+	cout << "started\n";
 	return 1;
 }
 
