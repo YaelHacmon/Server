@@ -148,6 +148,7 @@ void Server::start(){
 		//handle the clients
 		handleClients(client1_sd, client2_sd);
 
+		cout << "finished handeling clients\n";
 	} //end big loop
 
 } //end function

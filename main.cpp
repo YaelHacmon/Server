@@ -1,13 +1,13 @@
 /*
  * main.cpp
- *
- *  Created on: Dec 4, 2017
- *      Author: yael
  */
 
 
 #include <iostream>
+#include <stdlib.h> //for exit(-1)
+
 #include "Server.h"
+
 using namespace std;
 
 int main(){
@@ -16,7 +16,7 @@ int main(){
 	try {
 		server.start();
 	} catch (const char *msg) {
-		cout << "Cannot start server. Reason: " << msg << endl;
+		cout << "\nCannot start server. Reason: " << msg << endl;
 		exit(-1);
 	}
 
