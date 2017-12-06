@@ -145,93 +145,98 @@ void Server::start(){
 			return;
 		}
 
-		//declare row, column and temporary variable (avoid redeclaring at each iteration)
-		int row, column, temp_sd;
-
-		while(true){
-			/*
-			memset(&buffer[0], 0, sizeof(buffer));
-			//input - client 1
-			recv(client1_sd, buffer, 1024, 0);
-			if(strcmp(buffer, "End") == 0){ //TODO - should be using: n = read(..), then if (n==-2) -> exit
-				close(client1_sd);
-				close(client2_sd);
-				break;
-			}
-
-			//return message
-			//TODO - why not use write/read? then just send integers...
-			send(client2_sd, buffer, 1024, 0);
-			memset(&buffer[0], 0, sizeof(buffer));
-
-
-			//input - client 2
-			//TODO - why not use write/read? then just send integers...
-			recv(client2_sd, buffer, 1024, 0);
-			if(strcmp(buffer, "End") == 0){ //TODO - should be using: n = read(..), then if (n==-2) -> exit
-				close(client1_sd);
-				close(client2_sd);
-				break;
-			}
-
-			//return message
-			//TODO - why not use write/read? then just send integers...
-			send(client1_sd, buffer, 1024, 0);*/
-
-			//read row - first number sent
-			n = read(client1_sd, &row, sizeof(row));
-			if (n == -1) {
-				cout << "Error reading row from socket" << endl;
-				return;
-			}
-
-			//if game is over (-2) - close and wait for new clients
-			if(row == -2){
-				close(client1_sd);
-				close(client2_sd);
-				break;
-			}
-
-			//if other player had no moves (-1) - send that
-			if (row == -1) {
-				n = write(client2_sd, &row, sizeof(row));
-				if (n == -1) {
-					cout << "Error writing 'no moves' to socket" << endl;
-					return;
-				}
-			}
-			//else - other player made a move - read column of move and send it to opponent
-			else {
-				//read column
-				n = read(client1_sd, &column, sizeof(column));
-				if (n == -1) {
-					cout << "Error reading column from socket" << endl;
-					return;
-				}
-
-				//write row to opponent
-				n = write(client2_sd, &row, sizeof(row));
-				if (n == -1) {
-					cout << "Error writing row to socket" << endl;
-					return;
-				}
-
-				//write column to opponent
-				n = write(client2_sd, &column, sizeof(column));
-				if (n == -1) {
-					cout << "Error writing column' to socket" << endl;
-					return;
-				}
-			}
-
-			//switch players and keep on playing
-			//TODO - recognize that trick from someone?? ;)
-			temp_sd = client1_sd;
-			client1_sd = client2_sd;
-			client2_sd = temp_sd;
-
-		} //end small loop
+		handleClients(client1_sd, client2_sd);
 
 	} //end big loop
 
 } //end function
+
+
+void Server::handleClients(int client1_sd, int client2_sd) {
+	//declare row, column and temporary variable (avoid redeclaring at each iteration)
+	int row, column, temp_sd;
+
+	while(true){
+		/*
+		memset(&buffer[0], 0, sizeof(buffer));
+		//input - client 1
+		recv(client1_sd, buffer, 1024, 0);
+		if(strcmp(buffer, "End") == 0){ //TODO - should be using: n = read(..), then if (n==-2) -> exit
+			close(client1_sd);
+			close(client2_sd);
+			break;
+		}
+
+		//return message
+		//TODO - why not use write/read? then just send integers...
+		send(client2_sd, buffer, 1024, 0);
+		memset(&buffer[0], 0, sizeof(buffer));
+
+
+		//input - client 2
+		//TODO - why not use write/read? then just send integers...
+		recv(client2_sd, buffer, 1024, 0);
+		if(strcmp(buffer, "End") == 0){ //TODO - should be using: n = read(..), then if (n==-2) -> exit
+			close(client1_sd);
+			close(client2_sd);
+			break;
+		}
+
+		//return message
+		//TODO - why not use write/read? then just send integers...
+		send(client1_sd, buffer, 1024, 0);*/
+
+		//read row - first number sent
+		int n = read(client1_sd, &row, sizeof(row));
+		if (n == -1) {
+			cout << "Error reading row from socket" << endl;
+			return;
+		}
+
+		//if game is over (-2) - close and wait for new clients
+		if(row == -2){
+			close(client1_sd);
+			close(client2_sd);
+			break;
+		}
+
+		//if other player had no moves (-1) - send that
+		if (row == -1) {
+			n = write(client2_sd, &row, sizeof(row));
+			if (n == -1) {
+				cout << "Error writing 'no moves' to socket" << endl;
+				return;
+			}
+		}
+		//else - other player made a move - read column of move and send it to opponent
+		else {
+			//read column
+			n = read(client1_sd, &column, sizeof(column));
+			if (n == -1) {
+				cout << "Error reading column from socket" << endl;
+				return;
+			}
+
+			//write row to opponent
+			n = write(client2_sd, &row, sizeof(row));
+			if (n == -1) {
+				cout << "Error writing row to socket" << endl;
+				return;
+			}
+
+			//write column to opponent
+			n = write(client2_sd, &column, sizeof(column));
+			if (n == -1) {
+				cout << "Error writing column' to socket" << endl;
+				return;
+			}
+		}
+
+		//switch players and keep on playing
+		//TODO - recognize that trick from someone?? ;)
+		temp_sd = client1_sd;
+		client1_sd = client2_sd;
+		client2_sd = temp_sd;
+
+	} //end small loop
+}

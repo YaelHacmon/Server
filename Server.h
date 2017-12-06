@@ -20,10 +20,6 @@ class Server {
 	 * another
 	 */
 
-private:
-	int port;
-	int serverSocket;
-
 public:
 	Server(int port);
 	/*
@@ -32,6 +28,15 @@ public:
 	Server(string fileName);
 	void start();
 	void stop();
+
+private:
+	int port;
+	int serverSocket;
+
+	/**
+	 * Handles one turn of the clients
+	 */
+	void handleClients(int client1_sd, int client2_sd);
 };
 
 
