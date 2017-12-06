@@ -56,18 +56,16 @@ Server::Server(string fileName): serverSocket(0){
 	//assign server port - 	translate port number to integer
 	port = atoi(portNum.c_str());
 
+	cout<<"Server initialized";
 }
 
 void Server::start(){
-	int client1_sd, client2_sd;
 	char buffer[1024];
-
-	//clients' address
-	struct sockaddr_in client1Address, client2Address;
-	socklen_t client1AddressLen, client2AddressLen;
 
 	//cleaning buffer
 	memset(&buffer[0], 0, sizeof(buffer));
+
+	cout<<"cleaned buffer\n";
 
 	//Creating the socket
 	serverSocket = socket(AF_INET, SOCK_STREAM, 0);
@@ -75,8 +73,12 @@ void Server::start(){
 		throw "Error opening socket";
 	}
 
+	cout<<"opened socket\n";
+
 	//Creating socket address variable for binding
 	struct sockaddr_in serverAddress;
+
+	cout<<"created socket address variable for binding\n";
 
 	//initializing it to 0's
 	bzero((void *)&serverAddress, sizeof(serverAddress));
@@ -85,37 +87,52 @@ void Server::start(){
 	serverAddress.sin_addr.s_addr= INADDR_ANY;
 	serverAddress.sin_port = htons(port);
 
+	cout<<"\t initialized to 0\n";
+	cout<<"serverSocket: " <<serverSocket << "\tserverAddress: " << endl;
+
 	//binding
-	if (bind(serverSocket, (struct sockaddr* )&serverAddress,
-			sizeof(serverAddress)) == -1){
+	if (bind(serverSocket, (struct sockaddr* )&serverAddress, sizeof(serverAddress)) == -1){
 		throw "Error on binding";
 	}
 
+	cout<<"binded\n";
+
+	//start listening for clients
+	listen(serverSocket, MAX_CONNECTED_CLIENTS);
+	cout<< "Waiting for connections";
+
+	//clients' address
+	struct sockaddr_in client1Address, client2Address;
+	socklen_t client1AddressLen, client2AddressLen;
+	int client1_sd, client2_sd;
+
+	cout<<"declared client's address\n";
+
 	//if game ended, start a new one
 	while(true){
-		//start listening for clients
-		listen(serverSocket, MAX_CONNECTED_CLIENTS);
-		cout<< "Waiting for connections";
-
 		//Accepting first client
 		client1_sd = accept(serverSocket, (struct sockaddr* )&client1Address, &client1AddressLen);
 		cout<< "Client 1 entered!";
 
-		//Sending 1 to to show him he is the first to enter
-		//TODO - why not use write/read? then just send integers...
-		/*buffer[0] = '1';
-		send(client1_sd,buffer,1024,0);*/
+		if (client1_sd == -1){
+			 throw "Error on accept";
+		}
 
+		//Accepting second client
+		client2_sd = accept(serverSocket, (struct sockaddr* )&client2Address, &client2AddressLen);
+		cout<<"Client 2 entered!";
+
+		if (client2_sd == -1){
+			 throw "Error on accept";
+		}
+
+		//Sending 1 to to show him he is the first to enter
 		int color = 1;
 		int n = write(client1_sd, &color, sizeof(color));
 		if (n == -1) {
 			cout << "Error writing to socket" << endl;
 			return;
 		}
-
-		//Accepting second client
-		client2_sd = accept(serverSocket, (struct sockaddr* )&client2Address, &client2AddressLen);
-		cout<<"Client 2 entered!";
 
 		//Sending 2 to him to show him he is the second to enter
 		//TODO - why not use write/read? then just send integers...
