@@ -57,6 +57,7 @@ Server::Server(char* fileName): serverSocket(0){
 	port = atoi(portNum.c_str());
 
 }
+
 void Server::start(){
 	int client1_sd, client2_sd;
 	char buffer[1024];
@@ -105,14 +106,14 @@ void Server::start(){
 		/*buffer[0] = '1';
 		send(client1_sd,buffer,1024,0);*/
 
-		int n = write(client1_sd, &(1), sizeof(1));
+		int color = 1;
+		int n = write(client1_sd, &color, sizeof(color));
 		if (n == -1) {
 			cout << "Error writing to socket" << endl;
 			return;
 		}
 
 		//Accepting second client
-		//TODO - should be address 2...
 		client2_sd = accept(serverSocket, (struct sockaddr* )&client2Address, &client2AddressLen);
 		cout<<"Client 2 entered!";
 
@@ -120,7 +121,8 @@ void Server::start(){
 		//TODO - why not use write/read? then just send integers...
 		/*buffer[0] = '2';
 		send(client2_sd,buffer,1024,0);*/
-		n = write(client2_sd, &(2), sizeof(2));
+		color = 2;
+		n = write(client2_sd, &color, sizeof(color));
 		if (n == -1) {
 			cout << "Error writing to socket" << endl;
 			return;
