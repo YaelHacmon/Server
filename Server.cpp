@@ -88,7 +88,7 @@ void Server::start(){
 	serverAddress.sin_port = htons(port);
 
 	cout<<"\t initialized to 0\n";
-	cout<<"serverSocket: " <<serverSocket << "\tserverAddress: " << endl;
+	cout<<"serverSocket: " <<serverSocket << "\tserverPort: " << port << endl;
 
 	//binding
 	if (bind(serverSocket, (struct sockaddr* )&serverAddress, sizeof(serverAddress)) == -1){
@@ -99,7 +99,7 @@ void Server::start(){
 
 	//start listening for clients
 	listen(serverSocket, MAX_CONNECTED_CLIENTS);
-	cout<< "Waiting for connections";
+	cout<< "Waiting for connections\n";
 
 	//clients' address
 	struct sockaddr_in client1Address, client2Address;
@@ -145,6 +145,7 @@ void Server::start(){
 			return;
 		}
 
+		//handle the clients
 		handleClients(client1_sd, client2_sd);
 
 	} //end big loop
@@ -195,6 +196,7 @@ void Server::handleClients(int client1_sd, int client2_sd) {
 
 		//if game is over (-2) - close and wait for new clients
 		if(row == -2){
+			cout << "Ending game\n" << endl;
 			close(client1_sd);
 			close(client2_sd);
 			break;

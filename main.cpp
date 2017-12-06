@@ -12,11 +12,14 @@ using namespace std;
 
 int main(){
 	Server server("config.txt");
-	cout << "constructed\n";
 
-	server.start();
+	try {
+		server.start();
+	} catch (const char *msg) {
+		cout << "Cannot start server. Reason: " << msg << endl;
+		exit(-1);
+	}
 
-	cout << "started\n";
 	return 1;
 }
 
