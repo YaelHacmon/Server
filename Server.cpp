@@ -21,7 +21,7 @@ Server::Server(int port): port(port), serverSocket(0){
 	cout<<"Server initialized";
 }
 
-Server::Server(char* fileName): serverSocket(0){
+Server::Server(string fileName): serverSocket(0){
 	//TODO - recommendation - use my code
 
 	/*string buffer,dummyLine;
@@ -39,7 +39,7 @@ Server::Server(char* fileName): serverSocket(0){
 	config.close();*/
 
 	ifstream config;
-	config.open("config.txt", std::fstream::in);
+	config.open(fileName.c_str(), std::fstream::in);
 
 	if (!config) {
 		cerr << "Unable to open Server configuration file";

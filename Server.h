@@ -29,7 +29,7 @@ public:
 	/*
 	 * Getting the port from file
 	 */
-	Server(char* fileName);
+	Server(string fileName);
 	void start();
 	void stop();
 };
