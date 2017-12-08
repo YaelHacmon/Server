@@ -101,12 +101,12 @@ void Server::start(){
 	listen(serverSocket, MAX_CONNECTED_CLIENTS);
 	cout<< "Waiting for connections\n";
 
-	//clients' address
+	//declare clients' address
 	struct sockaddr_in client1Address, client2Address;
 	socklen_t client1AddressLen, client2AddressLen;
 	int client1_sd, client2_sd;
 
-	//initialize the addresses
+	//initialize the addresses - to allow for using 'accept' every time
 	client1AddressLen = sizeof((struct sockaddr*) &client1Address);
 	client2AddressLen = sizeof((struct sockaddr*) &client2Address);
 
