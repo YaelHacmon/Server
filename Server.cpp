@@ -128,8 +128,6 @@ void Server::start(){
 
 		cout << "finished handeling clients\n";
 	} //end big loop
-
-	cout << "ending start()\n";
 } //end function
 
 
@@ -192,8 +190,14 @@ int Server::readNum(int client1_sd, int client2_sd) {
 		return -1;
 	}else if (n == 0) {
 		//if no bytes were read from client - client1 has disconnected
-		cout << "client disconnected \n";
-		//TODO - notify other client (client2)
+		//notify other client (client2) - write (-3) to opponent
+		num = -3;
+		int n = write(client2_sd, &num, sizeof(num));
+
+		//check that writing succeeded (do not use writeNum to avoid infinite loop)
+		if (n == -1) {
+			cout << "Error writing row to socket" << endl;
+		}
 
 		//close clients
 		close(client1_sd);
@@ -216,8 +220,14 @@ int Server::writeNum(int num, int client1_sd, int client2_sd) {
 
 	} else if (n == 0) {
 		//if no bytes were written to client - client2 has disconnected
-		cout << "client disconnected \n";
-		//TODO - notify other client (client1)
+		//notify other client (client1) - write (-3) to opponent
+		num = -3;
+		int n = write(client1_sd, &num, sizeof(num));
+
+		//check that writing succeeded (do not use writeNum to avoid infinite loop)
+		if (n == -1) {
+			cout << "Error writing row to socket" << endl;
+		}
 
 		//close clients
 		close(client1_sd);
