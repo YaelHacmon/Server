@@ -37,6 +37,18 @@ private:
 	 * Handles one turn of the clients
 	 */
 	void handleClients(int client1_sd, int client2_sd);
+
+	/**
+	 * Reads from client1.
+	 * @return number read if succeeded, -1 if not (and should break loop)
+	 */
+	int readNum(int client1_sd, int client2_sd);
+
+	/**
+	 * Reads from client1.
+	 * @return 1 if succeeded, 0 if not (and should break loop)
+	 */
+	int writeNum(int num, int client1_sd, int client2_sd);
 };
 
 

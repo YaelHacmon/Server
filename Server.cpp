@@ -96,7 +96,7 @@ void Server::start(){
 		cout<< "Client 1 entered!";
 
 		if (client1_sd == -1){
-			 throw "Error on accept";
+			throw "Error on accept";
 		}
 
 		//Accepting second client
@@ -104,7 +104,7 @@ void Server::start(){
 		cout<<"Client 2 entered!";
 
 		if (client2_sd == -1){
-			 throw "Error on accept";
+			throw "Error on accept";
 		}
 
 		//Sending 1 to to show him he is the first to enter
@@ -129,7 +129,7 @@ void Server::start(){
 		cout << "finished handeling clients\n";
 	} //end big loop
 
-	cout << "ending start\n";
+	cout << "ending start()\n";
 } //end function
 
 
@@ -137,12 +137,13 @@ void Server::handleClients(int client1_sd, int client2_sd) {
 	//declare row, column and temporary variable (avoid redeclaring at each iteration)
 	int row, column, temp_sd;
 
+	//while game has not ended, and both clients are connected - play turns
 	while(true){
 		//read row - first number sent
-		int n = read(client1_sd, &row, sizeof(row));
-		if (n == -1) {
-			cout << "Error reading row from socket" << endl;
-			return;
+		row = readNum(client1_sd, client2_sd);
+		//if problem occurred - return from function (break loop) to accept new clients
+		if (row == -1) {
+			break;
 		}
 
 		//if game is over (-2) - close and wait for new clients
@@ -153,35 +154,25 @@ void Server::handleClients(int client1_sd, int client2_sd) {
 			break;
 		}
 
-		//if other player had no moves (-1) - send that
-		if (row == -1) {
-			n = write(client2_sd, &row, sizeof(row));
-			if (n == -1) {
-				cout << "Error writing 'no moves' to socket" << endl;
-				return;
-			}
+		//write row to other player
+		//if an error occurred - break loop (writeNum returns 1 if ok, 0 for an error)
+		if(!writeNum(row, client1_sd, client2_sd)) {
+			break;
 		}
-		//else - other player made a move - read column of move and send it to opponent
-		else {
+
+		//if other player made a move (did not send -1) - read and write column of player's move
+		if (row != -1) {
 			//read column
-			n = read(client1_sd, &column, sizeof(column));
-			if (n == -1) {
-				cout << "Error reading column from socket" << endl;
-				return;
+			column = readNum(client1_sd, client2_sd);
+			//if problem occurred - return from function (break loop) to accept new clients
+			if (column == -1) {
+				break;
 			}
 
-			//write row to opponent
-			n = write(client2_sd, &row, sizeof(row));
-			if (n == -1) {
-				cout << "Error writing row to socket" << endl;
-				return;
-			}
-
-			//write column to opponent
-			n = write(client2_sd, &column, sizeof(column));
-			if (n == -1) {
-				cout << "Error writing column' to socket" << endl;
-				return;
+			//write column
+			//if an error occurred - break loop (writeNum returns 1 if ok, 0 for an error)
+			if(!writeNum(column, client1_sd, client2_sd)) {
+				break;
 			}
 		}
 
@@ -189,6 +180,52 @@ void Server::handleClients(int client1_sd, int client2_sd) {
 		temp_sd = client1_sd;
 		client1_sd = client2_sd;
 		client2_sd = temp_sd;
-
 	} //end small loop
+}
+
+int Server::readNum(int client1_sd, int client2_sd) {
+	int num;
+	//read number sent
+	int n = read(client1_sd, &num, sizeof(num));
+	if (n == -1) {
+		cout << "Error reading row from socket" << endl;
+		return -1;
+	}else if (n == 0) {
+		//if no bytes were read from client - client1 has disconnected
+		cout << "client disconnected \n";
+		//TODO - notify other client (client2)
+
+		//close clients
+		close(client1_sd);
+		close(client2_sd);
+
+		return -1;
+	}
+
+	//otherwise - all is well, return read row
+	return num;
+}
+
+
+int Server::writeNum(int num, int client1_sd, int client2_sd) {
+	//write number to opponent
+	int n = write(client2_sd, &num, sizeof(num));
+	if (n == -1) {
+		cout << "Error writing row to socket" << endl;
+		return 0;
+
+	} else if (n == 0) {
+		//if no bytes were written to client - client2 has disconnected
+		cout << "client disconnected \n";
+		//TODO - notify other client (client1)
+
+		//close clients
+		close(client1_sd);
+		close(client2_sd);
+
+		return 0;
+	}
+
+	//all went well - return 1
+	return 1;
 }
