@@ -11,7 +11,7 @@
 using namespace std;
 
 int main(){
-	Server server("config.txt");
+	Server server("server_config.txt");
 
 	try {
 		server.start();

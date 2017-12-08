@@ -15,7 +15,7 @@
 
 
 using namespace std;
-#define MAX_CONNECTED_CLIENTS 2
+#define MAX_CONNECTED_CLIENTS 10
 
 Server::Server(int port): port(port), serverSocket(0){
 	cout<<"Server initialized";
@@ -106,6 +106,10 @@ void Server::start(){
 	socklen_t client1AddressLen, client2AddressLen;
 	int client1_sd, client2_sd;
 
+	//initialize the addresses
+	client1AddressLen = sizeof((struct sockaddr*) &client1Address);
+	client2AddressLen = sizeof((struct sockaddr*) &client2Address);
+
 	cout<<"declared client's address\n";
 
 	//if game ended, start a new one
@@ -159,35 +163,6 @@ void Server::handleClients(int client1_sd, int client2_sd) {
 	int row, column, temp_sd;
 
 	while(true){
-		/*
-		memset(&buffer[0], 0, sizeof(buffer));
-		//input - client 1
-		recv(client1_sd, buffer, 1024, 0);
-		if(strcmp(buffer, "End") == 0){ //TODO - should be using: n = read(..), then if (n==-2) -> exit
-			close(client1_sd);
-			close(client2_sd);
-			break;
-		}
-
-		//return message
-		//TODO - why not use write/read? then just send integers...
-		send(client2_sd, buffer, 1024, 0);
-		memset(&buffer[0], 0, sizeof(buffer));
-
-
-		//input - client 2
-		//TODO - why not use write/read? then just send integers...
-		recv(client2_sd, buffer, 1024, 0);
-		if(strcmp(buffer, "End") == 0){ //TODO - should be using: n = read(..), then if (n==-2) -> exit
-			close(client1_sd);
-			close(client2_sd);
-			break;
-		}
-
-		//return message
-		//TODO - why not use write/read? then just send integers...
-		send(client1_sd, buffer, 1024, 0);*/
-
 		//read row - first number sent
 		int n = read(client1_sd, &row, sizeof(row));
 		if (n == -1) {
