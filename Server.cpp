@@ -22,22 +22,6 @@ Server::Server(int port): port(port), serverSocket(0){
 }
 
 Server::Server(string fileName): serverSocket(0){
-	//TODO - recommendation - use my code
-
-	/*string buffer,dummyLine;
-	ifstream config;
-	config.open(fileName, std::fstream::in);
-	getline(config, dummyLine);
-
-	//dummyLine contains the first line
-	getline(config, buffer);
-
-	//erase the "Port = " to get the port itself
-	buffer.erase(buffer.begin(), buffer.begin() + strlen("Port = "));
-
-	port = atoi(buffer.c_str());
-	config.close();*/
-
 	ifstream config;
 	config.open(fileName.c_str(), std::fstream::in);
 
@@ -60,13 +44,6 @@ Server::Server(string fileName): serverSocket(0){
 }
 
 void Server::start(){
-	char buffer[1024];
-
-	//cleaning buffer
-	memset(&buffer[0], 0, sizeof(buffer));
-
-	cout<<"cleaned buffer\n";
-
 	//Creating the socket
 	serverSocket = socket(AF_INET, SOCK_STREAM, 0);
 	if(serverSocket == -1){
@@ -80,7 +57,7 @@ void Server::start(){
 
 	cout<<"created socket address variable for binding\n";
 
-	//initializing it to 0's
+	// Assign a local address to the socket
 	bzero((void *)&serverAddress, sizeof(serverAddress));
 	serverAddress.sin_family = AF_INET;
 	//Gets connections
@@ -139,9 +116,6 @@ void Server::start(){
 		}
 
 		//Sending 2 to him to show him he is the second to enter
-		//TODO - why not use write/read? then just send integers...
-		/*buffer[0] = '2';
-		send(client2_sd,buffer,1024,0);*/
 		color = 2;
 		n = write(client2_sd, &color, sizeof(color));
 		if (n == -1) {
@@ -155,6 +129,7 @@ void Server::start(){
 		cout << "finished handeling clients\n";
 	} //end big loop
 
+	cout << "ending start\n";
 } //end function
 
 
@@ -211,7 +186,6 @@ void Server::handleClients(int client1_sd, int client2_sd) {
 		}
 
 		//switch players and keep on playing
-		//TODO - recognize that trick from someone?? ;)
 		temp_sd = client1_sd;
 		client1_sd = client2_sd;
 		client2_sd = temp_sd;
