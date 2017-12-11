@@ -17,9 +17,7 @@
 using namespace std;
 #define MAX_CONNECTED_CLIENTS 10
 
-Server::Server(int port): port(port), serverSocket(0){
-	cout<<"Server initialized";
-}
+Server::Server(int port): port(port), serverSocket(0){}
 
 Server::Server(string fileName): serverSocket(0){
 	ifstream config;
@@ -39,8 +37,6 @@ Server::Server(string fileName): serverSocket(0){
 
 	//assign server port - 	translate port number to integer
 	port = atoi(portNum.c_str());
-
-	cout<<"Server initialized";
 }
 
 void Server::start(){
@@ -50,12 +46,8 @@ void Server::start(){
 		throw "Error opening socket";
 	}
 
-	cout<<"opened socket\n";
-
 	//Creating socket address variable for binding
 	struct sockaddr_in serverAddress;
-
-	cout<<"created socket address variable for binding\n";
 
 	// Assign a local address to the socket
 	bzero((void *)&serverAddress, sizeof(serverAddress));
@@ -64,19 +56,13 @@ void Server::start(){
 	serverAddress.sin_addr.s_addr= INADDR_ANY;
 	serverAddress.sin_port = htons(port);
 
-	cout<<"\t initialized to 0\n";
-	cout<<"serverSocket: " <<serverSocket << "\tserverPort: " << port << endl;
-
 	//binding
 	if (bind(serverSocket, (struct sockaddr* )&serverAddress, sizeof(serverAddress)) == -1){
 		throw "Error on binding";
 	}
 
-	cout<<"binded\n";
-
 	//start listening for clients
 	listen(serverSocket, MAX_CONNECTED_CLIENTS);
-	cout<< "Waiting for connections\n";
 
 	//declare clients' address
 	struct sockaddr_in client1Address, client2Address;
@@ -87,13 +73,10 @@ void Server::start(){
 	client1AddressLen = sizeof((struct sockaddr*) &client1Address);
 	client2AddressLen = sizeof((struct sockaddr*) &client2Address);
 
-	cout<<"declared client's address\n";
-
 	//if game ended, start a new one
 	while(true){
 		//Accepting first client
 		client1_sd = accept(serverSocket, (struct sockaddr* )&client1Address, &client1AddressLen);
-		cout<< "Client 1 entered!";
 
 		if (client1_sd == -1){
 			throw "Error on accept";
@@ -101,7 +84,6 @@ void Server::start(){
 
 		//Accepting second client
 		client2_sd = accept(serverSocket, (struct sockaddr* )&client2Address, &client2AddressLen);
-		cout<<"Client 2 entered!";
 
 		if (client2_sd == -1){
 			throw "Error on accept";
@@ -115,7 +97,24 @@ void Server::start(){
 			return;
 		}
 
-		//Sending 2 to him to show him he is the second to enter
+		//TODO
+		//if client 1 disconnected before sending color to second client - switch clients and keep on waiting
+		while (n==0) {
+			//switch
+			client1_sd = client2_sd;
+			//Accept another second client
+			client2_sd = accept(serverSocket, (struct sockaddr* )&client2Address, &client2AddressLen);
+
+			//Sending 1 to to show client 1 he is the first to enter
+			int color = 1;
+			int n = write(client1_sd, &color, sizeof(color));
+			if (n == -1) {
+				cout << "Error writing to socket" << endl;
+				return;
+			}
+		}
+
+		//Sending 2 to client 2 to show him he is the second to enter
 		color = 2;
 		n = write(client2_sd, &color, sizeof(color));
 		if (n == -1) {
@@ -126,7 +125,6 @@ void Server::start(){
 		//handle the clients
 		handleClients(client1_sd, client2_sd);
 
-		cout << "finished handeling clients\n";
 	} //end big loop
 } //end function
 
@@ -146,7 +144,6 @@ void Server::handleClients(int client1_sd, int client2_sd) {
 
 		//if game is over (-2) - close and wait for new clients
 		if(row == -2){
-			cout << "Ending game\n" << endl;
 			close(client1_sd);
 			close(client2_sd);
 			break;
