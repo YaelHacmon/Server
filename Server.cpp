@@ -97,23 +97,6 @@ void Server::start(){
 			return;
 		}
 
-		//TODO
-		//if client 1 disconnected before sending color to second client - switch clients and keep on waiting
-		while (n==0) {
-			//switch
-			client1_sd = client2_sd;
-			//Accept another second client
-			client2_sd = accept(serverSocket, (struct sockaddr* )&client2Address, &client2AddressLen);
-
-			//Sending 1 to to show client 1 he is the first to enter
-			int color = 1;
-			int n = write(client1_sd, &color, sizeof(color));
-			if (n == -1) {
-				cout << "Error writing to socket" << endl;
-				return;
-			}
-		}
-
 		//Sending 2 to client 2 to show him he is the second to enter
 		color = 2;
 		n = write(client2_sd, &color, sizeof(color));
