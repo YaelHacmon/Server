@@ -15,7 +15,7 @@ public:
 	 * Constructor taking the server to be executed on, by reference.
 	 * @param server to apply command to
 	 */
-	Command(Server &server);
+	Command(Server &server): server_(server) {};
 
 	//virtual destructor
 	virtual ~Command() {}
