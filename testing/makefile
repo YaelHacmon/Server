@@ -1,5 +1,5 @@
-INCLUDE = ../
-SRC = ../
+INCLUDE = ../include/
+SRC = ../src/
 CCFLAGS = -c -I $(INCLUDE)
 
 #create executalbe file by linking the object files

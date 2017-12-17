@@ -13,7 +13,6 @@
 #include <stdio.h>
 #include <cstdlib>
 
-
 using namespace std;
 #define MAX_CONNECTED_CLIENTS 10
 
