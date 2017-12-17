@@ -6,7 +6,7 @@
 #include <iostream>
 #include <stdlib.h> //for exit(-1)
 
-#include "Server.h"
+#include "../include/Server.h"
 
 using namespace std;
 

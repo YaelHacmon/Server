@@ -2,7 +2,7 @@
  * server.cpp
  */
 
-#include "Server.h"
+#include "../include/Server.h"
 
 #include <sys/socket.h>
 #include <netinet/in.h>
