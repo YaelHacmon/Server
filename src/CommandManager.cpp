@@ -1,14 +1,12 @@
-/*
- * CommandManager.cpp
- */
-
 #include "../include/CommandManager.h"
+#include "../include/PlayCommand.h"
+
 using namespace std;
 
 //c'tor - new commands should be added here
 //TODO - see if objects can be on stack... probably not, due to scope or something
 CommandsManager::CommandsManager() {
-	commandsMap["print"] = new PrintCommand();
+	commandsMap["play"] = new PlayCommand();
 	// Add more commands...
 }
 

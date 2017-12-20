@@ -1,7 +1,3 @@
-/*
- * CommandManager.h
- */
-
 #ifndef COMMANDMANAGER_H_
 #define COMMANDMANAGER_H_
 
