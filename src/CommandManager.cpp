@@ -5,9 +5,9 @@ using namespace std;
 
 //c'tor - new commands should be added here
 //TODO - see if objects can be on stack... probably not, due to scope or something
-CommandsManager::CommandsManager() {
-	commandsMap["play"] = new PlayCommand();
-	// Add more commands...
+CommandsManager::CommandsManager(Server& s) {
+	commandsMap["play"] = new PlayCommand(s);
+	// TODO Add more commands...
 }
 
 

@@ -12,9 +12,17 @@
 #include <fstream>
 #include <stdio.h>
 #include <cstdlib>
+#include <iterator>
+#define MAX_CONNECTED_CLIENTS 10
 
 using namespace std;
-#define MAX_CONNECTED_CLIENTS 10
+
+//for cleaner code
+typedef Server::Game Game;
+
+//declare CommandManager as class, to avoid loop of headers TODO - right way to do this?
+class CommandsManager;
+
 
 Server::Server(int port): port(port), serverSocket(0){}
 
@@ -72,6 +80,8 @@ void Server::start(){
 	client1AddressLen = sizeof((struct sockaddr*) &client1Address);
 	client2AddressLen = sizeof((struct sockaddr*) &client2Address);
 
+	//TODO - somehow this also needs to be multithreaded... the two accepts should be separated
+
 	//if game ended, start a new one
 	while(true){
 		//Accepting first client
@@ -81,6 +91,7 @@ void Server::start(){
 			throw "Error on accept";
 		}
 
+		//TODO - I think this should be removed... because at each time we only accept a single client and handle with handleSingleClient()
 		//Accepting second client
 		client2_sd = accept(serverSocket, (struct sockaddr* )&client2Address, &client2AddressLen);
 
@@ -88,77 +99,153 @@ void Server::start(){
 			throw "Error on accept";
 		}
 
-		//Sending 1 to to show him he is the first to enter
-		int color = 1;
-		int n = write(client1_sd, &color, sizeof(color));
-		if (n == -1) {
-			cout << "Error writing to socket" << endl;
-			return;
-		}
-
-		//Sending 2 to client 2 to show him he is the second to enter
-		color = 2;
-		n = write(client2_sd, &color, sizeof(color));
-		if (n == -1) {
-			cout << "Error writing to socket" << endl;
-			return;
-		}
-
-		//handle the clients
-		handleClients(client1_sd, client2_sd);
+		//handle the clients - TODO - change to handleSingleClient(), using multithreading
+		//handleClients(client1_sd, client2_sd);
 
 	} //end big loop
 } //end function
 
 
-void Server::handleClients(int client1_sd, int client2_sd) {
-	//declare row, column and temporary variable (avoid redeclaring at each iteration)
-	int row, column, temp_sd;
+//TODO - this is the old code (what was inside the big while loop - should now be inside playMove
+int Server::playMove(int client1_sd, int client2_sd) {
+	//read row - first number sent
+	int row = readNum(client1_sd, client2_sd);
+	//if problem occurred - return from function
+	if (row == -1) {
+		return -1;
+	}
 
-	//while game has not ended, and both clients are connected - play turns
-	while(true){
-		//read row - first number sent
-		row = readNum(client1_sd, client2_sd);
-		//if problem occurred - return from function (break loop) to accept new clients
-		if (row == -1) {
-			break;
+	//if game is over (-2) - return from function TODO - required??
+	if(row == -2){
+		return -1;
+	}
+
+	//write row to other player
+	//if an error occurred - return from function
+	if(!writeNum(row, client1_sd, client2_sd)) {
+		return -1;
+	}
+
+	//if other player made a move (did not send -1) - read and write column of player's move
+	if (row != -1) {
+		//read column
+		int column = readNum(client1_sd, client2_sd);
+		//if problem occurred - return from function
+		if (column == -1) {
+			return -1;
 		}
 
-		//if game is over (-2) - close and wait for new clients
-		if(row == -2){
-			close(client1_sd);
-			close(client2_sd);
-			break;
+		//write column
+		//if an error occurred - return from function
+		if(!writeNum(column, client1_sd, client2_sd)) {
+			return -1;
 		}
+	}
 
-		//write row to other player
-		//if an error occurred - break loop (writeNum returns 1 if ok, 0 for an error)
-		if(!writeNum(row, client1_sd, client2_sd)) {
-			break;
-		}
-
-		//if other player made a move (did not send -1) - read and write column of player's move
-		if (row != -1) {
-			//read column
-			column = readNum(client1_sd, client2_sd);
-			//if problem occurred - return from function (break loop) to accept new clients
-			if (column == -1) {
-				break;
-			}
-
-			//write column
-			//if an error occurred - break loop (writeNum returns 1 if ok, 0 for an error)
-			if(!writeNum(column, client1_sd, client2_sd)) {
-				break;
-			}
-		}
-
-		//switch players and keep on playing
-		temp_sd = client1_sd;
-		client1_sd = client2_sd;
-		client2_sd = temp_sd;
-	} //end small loop
+	//method ended successfully - return 0 (game is not over)
+	return 0;
 }
+
+
+string& Server::findGame(int client_sd) {
+	//search played games
+	for (vector<Game>::const_iterator iter = playingGames_.begin(); iter != playingGames_.end(); iter++) {
+		//if given client is one of the playing clients
+		if (iter->client1_sd == client_sd || iter->client2_sd == client_sd) {
+			//return game name
+			return iter->name;
+		}
+	}
+
+	//search waiting games
+	for (vector<Game>::const_iterator iter = waitingGames_.begin(); iter != waitingGames_.end(); iter++) {
+		//if given client is the waiting client
+		if (iter->client1_sd == client_sd) {
+			//return game name
+			return iter->name;
+		}
+	}
+
+	//else - return the empty string
+	return "";
+}
+
+
+void Server::handleSingleClient(int client_sd) {
+	string command;
+	//TODO accept command from client (if he wants to start a game or see the list of games->accept command with game to join)
+
+	//split command by space
+	istringstream iss(command);
+	vector<string> args((istream_iterator<string>(iss)), istream_iterator<string>());
+
+	//make command the first word
+	command = args[0];
+	//remove command from arguments
+	args.erase(args.begin());
+
+	//add the client's file descriptor as the last arguments
+	args.insert(args.end(), toString(client_sd)); //add to arguments
+
+	//execute command
+	commandManager_.executeCommand(command, args);
+
+	//TODO - explanation - will either open a game in the game lists, and exit thread, or create new thread to play a game
+	//so we don't need to do anything else
+	//TODO - do we need pthread_exit()?
+}
+
+
+void Server::handleGame(Game& g) {
+	//Sending 1 to show him he was the first to enter
+	int color = 1;
+	int n = write(g.client1_sd, &color, sizeof(color));
+	if (n == -1) {
+		cout << "Error writing to socket" << endl;
+		return;
+	}
+
+	//Sending 2 to client 2 to show him he was the second to enter
+	color = 2;
+	n = write(g.client2_sd, &color, sizeof(color));
+	if (n == -1) {
+		cout << "Error writing to socket" << endl;
+		return;
+	}
+
+	//play game - accept commands from players
+	//loop will never be broken, until "close" command will be invoked and close thread     TODO - true?
+	int temp_sd;
+	while (true) {
+		string command;
+		//TODO send\receive command via server - receive from client1 - switching is done at end of loop
+
+		//split command by space
+		istringstream iss(command);
+		vector<string> args((istream_iterator<string>(iss)), istream_iterator<string>());
+
+		//make command the first word
+		command = args[0];
+		//remove command from arguments
+		args.erase(args.begin());
+
+		//add the two file descriptors as the last two arguments
+		//sd of client 1
+		args.insert(args.end(), toString(g.client1_sd));
+
+		//sd of client 2
+		args.insert(args.end(), toString(g.client2_sd)); //add to arguments
+
+		//execute command
+		commandManager_.executeCommand(command, args);
+
+		//switch players and keep playing
+		temp_sd = g.client1_sd;
+		g.client1_sd = g.client2_sd;
+		g.client2_sd = temp_sd;
+	}
+}
+
 
 int Server::readNum(int client1_sd, int client2_sd) {
 	int num;
@@ -178,9 +265,7 @@ int Server::readNum(int client1_sd, int client2_sd) {
 			cout << "Error writing row to socket" << endl;
 		}
 
-		//close clients
-		close(client1_sd);
-		close(client2_sd);
+		//closing clients will happen when returning with a error
 
 		return -1;
 	}
@@ -208,13 +293,31 @@ int Server::writeNum(int num, int client1_sd, int client2_sd) {
 			cout << "Error writing row to socket" << endl;
 		}
 
-		//close clients
-		close(client1_sd);
-		close(client2_sd);
+		//closing clients will happen when returning with a error
 
 		return 0;
 	}
 
 	//all went well - return 1
 	return 1;
+}
+
+
+std::string Server::toString(int a) {
+	//declare (empty c'tor)
+	stringstream ss;
+	//add integer to stream
+	ss << a;
+	//get contents
+	string str = ss.str();
+
+	//return string
+	return str;
+}
+
+
+vector<string> Server::split(string& line) {
+	istringstream iss(line);
+	vector<string> args((istream_iterator<string>(iss)), istream_iterator<string>());
+	return args;
 }

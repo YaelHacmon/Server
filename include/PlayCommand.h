@@ -16,11 +16,12 @@ public:
 
 	/**
 	 * Executes the action of this command.
-	 * In this case - send the other player the played move. (In case of no move - sends -1,-1)
+	 * In this case - communicates one turn of the playing player (first argument in vector) to the other player (second argument).
+	 * Reads the played move as integers then writes to other player (also as integers)
 	 *
 	 * @param args arguments for command's execution, by the set protocol of the certain instance
 	 */
-	virtual void execute(std::vector<std::string> args) = 0;
+	virtual void execute(std::vector<std::string> args);
 };
 
 

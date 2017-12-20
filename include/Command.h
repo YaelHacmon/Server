@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include "Server.h"
 
 /**
  * Represents a command from the client (sender, creator) to the server (receiver, invoker)
