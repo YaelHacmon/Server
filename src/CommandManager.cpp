@@ -5,9 +5,27 @@ using namespace std;
 
 //c'tor - new commands should be added here
 //TODO - see if objects can be on stack... probably not, due to scope or something
-CommandsManager::CommandsManager(Server& s) {
+CommandsManager::CommandsManager(SetCommand& s) {
 	commandsMap["play"] = new PlayCommand(s);
-	// TODO Add more commands...
+	commandsMap["start"] = new StartMatchCommand(s);
+	commandsMap["list_games"] = new ListGamesCommand(s);
+	commandsMap["join"] = new JoinCommand(s);
+	commandsMap["close"] = new CloseCommand(s);
+}
+
+}
+
+CommandsManager::~CommandsManager() {
+	delete commandsMap["start"];
+	delete commandsMap["list_games"];
+	delete commandsMap["join"];
+	delete commandsMap["play"];
+	delete commandsMap["close"];
+}
+
+void CommandsManager::executeCommand(int sender, string command, vector<string> args) {
+	Command *currCommand = commandsMap[command];
+	currCommand->execute(sender, args);
 }
 
 
@@ -19,7 +37,6 @@ CommandsManager::~CommandsManager() {
 		delete it->second;
 	}
 }
-
 
 void CommandsManager::executeCommand(string command, vector<string> args) {
 	//get the correct command from map

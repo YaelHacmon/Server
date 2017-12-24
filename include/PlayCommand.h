@@ -2,6 +2,7 @@
 #define PLAYCOMMAND_H_
 
 #include "Command.h"
+using namespace std;
 
 /**
  * Reresents a command notifying of one player making a moved
@@ -21,7 +22,7 @@ public:
 	 *
 	 * @param args arguments for command's execution, by the set protocol of the certain instance
 	 */
-	virtual void execute(std::vector<std::string> args);
+	virtual void execute(vector<string> args);
 };
 
 

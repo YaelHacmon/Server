@@ -11,7 +11,7 @@ public:
 	/**
 	 * Default c'tor, creates map with Commands. Accepts server for commands to act on
 	 */
-	CommandsManager(Server& s);
+	CommandsManager(SetCommand& s);
 
 	/**
 	 * Destructor to release map
@@ -21,11 +21,11 @@ public:
 	/**
 	 * Executes a command by the given key and arguments
 	 */
-	void executeCommand(std::string command, std::vector<std::string> args);
+	void executeCommand(string command, vector<string> args);
 
 private:
 	//map of commands, where the key is a string (and value is the Command, of course)
-	std::map<std::string, Command*> commandsMap;
+	map<string, Command*> commandsMap;
 };
 
 
