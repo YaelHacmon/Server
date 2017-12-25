@@ -7,7 +7,7 @@
 #define STARTGAMECOMMAND_H_
 
 #include "Command.h"
-#include "SetCommand.h"
+#include "Utilities.h"
 
 #include <vector>
 #include <string>
@@ -15,13 +15,10 @@ using namespace std;
 
 class StartGameCommand: public Command {
 public:
-	StartGameCommand(SetCommand& info);
+	StartGameCommand(Server &server);
 	virtual ~StartGameCommand();
 
-	virtual void execute(int sender,vector<string> args);
-
-private:
-	SetCommand& info;
+	virtual void execute(vector<string> args);
 };
 
 #endif /* STARTMATCHCOMMAND_H_ */

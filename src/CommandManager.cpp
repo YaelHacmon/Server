@@ -5,7 +5,7 @@ using namespace std;
 
 //c'tor - new commands should be added here
 //TODO - see if objects can be on stack... probably not, due to scope or something
-CommandsManager::CommandsManager(SetCommand& s) {
+CommandsManager::CommandsManager(Utilities& s) {
 	commandsMap["play"] = new PlayCommand(s);
 	commandsMap["start"] = new StartMatchCommand(s);
 	commandsMap["list_games"] = new ListGamesCommand(s);

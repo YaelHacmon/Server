@@ -7,7 +7,7 @@
 
 using namespace std;
 
-CloseCommand::CloseCommand(SetCommand &info): info(info) {}
+CloseCommand::CloseCommand(Utilities &info): info(info) {}
 
 CloseCommand::~CloseCommand() {}
 

@@ -6,7 +6,7 @@
 
 using namespace std;
 
-ListGamesCommand::ListGamesCommand(SetCommand &info): info(info) {
+ListGamesCommand::ListGamesCommand(Utilities &info): info(info) {
 	//Nothing right now
 }
 

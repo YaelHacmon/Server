@@ -1,10 +1,5 @@
-/*
- * SetCommand.h
- *      Author: yael
- */
-
-#ifndef SRC_SETCOMMAND_H_
-#define SRC_SETCOMMAND_H_
+#ifndef SRC_Utilities_H_
+#define SRC_Utilities_H_
 
 
 #include "GameInfo.h"
@@ -17,10 +12,10 @@
 
 using namespace std;
 
-class SetCommand {
+class Utilities {
 public:
-	SetCommand();
-	virtual ~SetCommand();
+	Utilities();
+	virtual ~Utilities();
 
 	enum CommandOption {Start, Join, Play, Close, List};
 
@@ -29,6 +24,13 @@ public:
 	 */
 	vector<string> split(string& line);
 
+	/**
+	 * Helper function for cleaner code: converts integer to string
+	 */
+	string toString(int a);
+
+	//TODO - remove all but "split" and toString
+
 	string& findGame(int client_sd);
 
 	/**
@@ -36,21 +38,6 @@ public:
 	 * Returns 0 if game is not over and all read/write actions succeeded, -1 otherwise (if game should be closed)
 	 */
 	int playMove(int client1_sd, int client2_sd);
-
-	/**
-	 * Reads from client1.
-	 * @return number read if succeeded, -1 if not (and should break loop and close game)
-	 */
-	int readNum(int client1_sd, int client2_sd);
-
-	/**
-	 * Reads from client1.
-	 * @return 1 if succeeded, 0 if not (and should break loop and close game)
-	 */
-	int writeNum(int num, int client1_sd, int client2_sd);
-
-	//TODO?
-	void playMove(int client1_sd, string noMove);
 
 	/**
 	 * Closes the given game (game given by name): searches for it in lists and removes from playing lists and closes descriptors.
@@ -68,7 +55,7 @@ public:
 	void joinGame(int client2_sd,vector<string> args);
 
 	//TODO?
-	SetCommand::CommandOption getLastCommand() const;
+	Utilities::CommandOption getLastCommand() const;
 
 	//TODO?
 	int getLastCommandResult() const;
@@ -82,7 +69,7 @@ public:
 	bool sendMessageToClient(int client, string& msg);
 
 private:
-
+	//TODO - remove all these
 
 	/**
 	 * Struct with game information: two client socket descriptors and the game name
@@ -102,10 +89,10 @@ private:
 
 	map<int, GameInfo*> matchClientMap;
 
-	SetCommand::CommandOption lastCommand;
+	Utilities::CommandOption lastCommand;
 
 	int lastCommandResult;
 
 };
 
-#endif /* SRC_SETCOMMAND_H_ */
+#endif /* SRC_Utilities_H_ */

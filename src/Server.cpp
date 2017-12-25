@@ -17,8 +17,6 @@
 
 using namespace std;
 
-//for cleaner code
-typedef Server::Game Game;
 
 //declare CommandManager as class, to avoid loop of headers TODO - right way to do this?
 class CommandsManager;
@@ -110,6 +108,7 @@ void Server::handleSingleClient(int client_sd) {
 	string command;
 	//TODO accept command from client (if he wants to start a game or see the list of games->accept command with game to join)
 
+	//TODO - use helper method
 	//split command by space
 	istringstream iss(command);
 	vector<string> args((istream_iterator<string>(iss)), istream_iterator<string>());
@@ -131,10 +130,10 @@ void Server::handleSingleClient(int client_sd) {
 }
 
 
-void Server::handleGame(Game& g) {
+void Server::handleGame(GameInfo& g) {
 	//Sending 1 to show him he was the first to enter
 	int color = 1;
-	int n = write(g.client1_sd, &color, sizeof(color));
+	int n = write(g.getClientA(), &color, sizeof(color));
 	if (n == -1) {
 		cout << "Error writing to socket" << endl;
 		return;
@@ -142,7 +141,7 @@ void Server::handleGame(Game& g) {
 
 	//Sending 2 to client 2 to show him he was the second to enter
 	color = 2;
-	n = write(g.client2_sd, &color, sizeof(color));
+	n = write(g.getClientB(), &color, sizeof(color));
 	if (n == -1) {
 		cout << "Error writing to socket" << endl;
 		return;
@@ -166,32 +165,94 @@ void Server::handleGame(Game& g) {
 
 		//add the two file descriptors as the last two arguments
 		//sd of client 1
-		args.insert(args.end(), toString(g.client1_sd));
+		args.insert(args.end(), toString(g.getClientA()));
 
 		//sd of client 2
-		args.insert(args.end(), toString(g.client2_sd)); //add to arguments
+		args.insert(args.end(), toString(g.getClientB())); //add to arguments
 
 		//execute command
 		commandManager_.executeCommand(command, args);
 
 		//switch players and keep playing
-		temp_sd = g.client1_sd;
-		g.client1_sd = g.client2_sd;
-		g.client2_sd = temp_sd;
+		g.swapClients();
 	}
 }
 
 
-std::string Server::toString(int a) {
-	//declare (empty c'tor)
-	stringstream ss;
-	//add integer to stream
-	ss << a;
-	//get contents
-	string str = ss.str();
+int Server::readNum(int client1_sd, int client2_sd) {
+	int num;
+	//read number sent
+	int n = read(client1_sd, &num, sizeof(num));
+	if (n == -1) {
+		cout << "Error reading row from socket" << endl;
+		return -1;
+	}else if (n == 0) {
+		//if no bytes were read from client - client1 has disconnected
+		//notify other client (client2) - write (-3) to opponent
+		num = -3;
+		int n = write(client2_sd, &num, sizeof(num));
 
-	//return string
-	return str;
+		//check that writing succeeded (do not use writeNum to avoid infinite loop)
+		if (n == -1) {
+			cout << "Error writing row to socket" << endl;
+		}
+
+		//closing clients will happen when returning with a error
+
+		return -1;
+	}
+
+	//otherwise - all is well, return read row
+	return num;
 }
 
 
+int Server::writeNum(int num, int client1_sd, int client2_sd) {
+	//write number to opponent
+	int n = write(client2_sd, &num, sizeof(num));
+	if (n == -1) {
+		cout << "Error writing row to socket" << endl;
+		return 0;
+
+	} else if (n == 0) {
+		//if no bytes were written to client - client2 has disconnected
+		//notify other client (client1) - write (-3) to opponent
+		num = -3;
+		int n = write(client1_sd, &num, sizeof(num));
+
+		//check that writing succeeded (do not use writeNum to avoid infinite loop)
+		if (n == -1) {
+			cout << "Error writing row to socket" << endl;
+		}
+
+		//closing clients will happen when returning with a error
+
+		return 0;
+	}
+
+	//all went well - return 1
+	return 1;
+}
+
+
+void Server::closeGame(int client_sd) {
+	//find game
+	GameInfo g = gameList_.findGame(client_sd);
+	//close both sockets - we don't know which one was given, so getting both via GameInfo
+	close(g.getClientA());
+	close(g.getClientB());
+	//remove from list
+	gameList_.closeGame(g);
+}
+
+
+void Server::joinGame(int client2_sd, string name) {
+	//join game
+	GameInfo g = gameList_.joinGame(name, client2_sd);
+
+	//if returned GameInfo is not NULL - play game
+	if (g != NULL) {
+		handleGame(g);
+	}
+	//TODO - will be broked via "close"?
+}

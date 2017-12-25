@@ -7,7 +7,7 @@
 #define LISTGAMESCOMMAND_H_
 
 #include "Command.h"
-#include "SetCommand.h"
+#include "Utilities.h"
 
 #include <vector>
 #include <string>
@@ -15,13 +15,10 @@ using namespace std;
 
 class ListGamesCommand: public Command {
 public:
-	ListGamesCommand(SetCommand& info);
+	ListGamesCommand(Server &server);
 	virtual ~ListGamesCommand();
 
-	virtual void execute(int sender, vector<string> args);
-
-private:
-	SetCommand& info;
+	virtual void execute(vector<string> args);
 };
 
 #endif /* LISTGAMESCOMMAND_H_ */

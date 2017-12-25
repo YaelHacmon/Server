@@ -11,7 +11,7 @@ public:
 	/**
 	 * Default c'tor, creates map with Commands. Accepts server for commands to act on
 	 */
-	CommandsManager(SetCommand& s);
+	CommandsManager(Utilities& s);
 
 	/**
 	 * Destructor to release map

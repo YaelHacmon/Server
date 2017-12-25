@@ -8,20 +8,17 @@
 #define CLOSECOMMAND_H_
 
 #include "Command.h"
-#include "SetCommand.h"
+#include "Utilities.h"
 
 #include <vector>
 #include <string>
 
 class CloseCommand: public Command {
 public:
-	CloseCommand(SetCommand& info);
+	CloseCommand(Server &server);
 	virtual ~CloseCommand();
 
-	virtual void execute(int sender, std::vector<std::string> args);
-
-private:
-	SetCommand& info;
+	virtual void execute(std::vector<std::string> args);
 };
 
 #endif /* CLOSECOMMAND_H_ */
