@@ -16,6 +16,11 @@
 #include <pthread.h>
 
 #define MAX_CONNECTED_CLIENTS 10
+//set maximal command length to 60 bytes (longest command - start/close <name> - is at most 56 characters)
+#define MAX_COMMAND_LENGTH 60
+//set maximal string length (for list_games command) to 1024 bytes (1 kb)
+#define MAX_STRING_LENGTH 1024
+//TODO - is this okay/enough? -> at least 20 games (longest string sent and recieved)
 
 using namespace std;
 
@@ -157,10 +162,13 @@ void* Server::handleSingleClient(void* sd) {
 	//read string of command from given client
 	string command = readString(client_sd);
 
-	//if a problem occurred - close socket
+	//if a problem occurred - close socket and terminate thread
 	if(command == NULL) {
-		//close socket (if socket closed - does nothing)
+		//close socket (if socket is already closed - does nothing)
 		closeClient(client_sd);
+
+		//exit thread
+		pthread_exit(NULL);
 	}
 
 	//split command by space
@@ -204,11 +212,14 @@ void Server::handleGame(GameInfo& g) {
 	while (true) {
 		string command = readString(g.getClientA(), g.getClientB());
 
-		//if a problem occurred - close sockets (other client has already been notified of disconnection)
+		//if a problem occurred - close socket and terminate thread (other client has already been notified of disconnection)
 		if(command == NULL) {
-			//close socket (if socket is closed - does nothing)
+			//close socket (if a socket is closed - does nothing)
 			closeClient(g.getClientA());
 			closeClient(g.getClientB());
+
+			//exit thread
+			pthread_exit(NULL);
 		}
 
 		//split command by space
@@ -259,7 +270,7 @@ int Server::readNum(int client1_sd, int client2_sd) {
 		return -1;
 	}
 
-	//otherwise - all is well, return read row
+	//otherwise - all is well, return number read row
 	return num;
 }
 
@@ -292,9 +303,84 @@ int Server::writeNum(int num, int client1_sd, int client2_sd) {
 }
 
 
+string readString(int client_sd) {
+	string str;
+	//TODO - is it right to resize each time
+	str.resize(MAX_COMMAND_LENGTH);
+
+	//read string sent
+	int n = read(client_sd, &str, MAX_COMMAND_LENGTH);
+	if (n == -1) {
+		cout << "Error reading row from socket" << endl;
+		return NULL;
+	}else if (n == 0) {
+		//if no bytes were read from client - client has disconnected, return NULL (an error occurred)
+		//closing clients will happen when returning with a error
+		return NULL;
+	}
+
+	//otherwise - all is well, return string read row
+	return str;
+}
+
+string Server::readString(int client1_sd, int client2_sd) {
+	string str;
+	//TODO - is it right to resize each time
+	str.resize(MAX_COMMAND_LENGTH);
+
+	//read string sent
+	int n = read(client1_sd, &str, MAX_COMMAND_LENGTH);
+	if (n == -1) {
+		cout << "Error reading row from socket" << endl;
+		return NULL;
+	}else if (n == 0) {
+		//if no bytes were read from client - client1 has disconnected
+		//notify other client (client2) - write (-3) to opponent
+		int num = -3;
+		int n = write(client2_sd, &num, sizeof(num));
+		/* NOTICE: when reading a string with 2 players connected, after sending command (string), next move is read (int)
+		THEREFOR we can send (-3) as an error code (just like before).
+		In general - client sends both string and integer, but reads integers only */
+		//TODO - good design?? :|
+
+		//check that writing succeeded (do not use writeNum to avoid infinite loop)
+		if (n == -1) {
+			cout << "Error writing row to socket" << endl;
+		}
+
+		//closing clients will happen when returning with a error
+
+		return NULL;
+	}
+
+	//otherwise - all is well, return string read row
+	return str;
+}
+
+int Server::writeString(string s, int client_sd) {
+	//TODO - is it right to resize each time
+	s.resize(MAX_STRING_LENGTH);
+
+	//write number to opponent
+	int n = write(client_sd, &s, MAX_STRING_LENGTH);
+	if (n == -1) {
+		cout << "Error writing row to socket" << endl;
+		return 0;
+
+	}else if (n == 0) {
+		//if no bytes were read from client - client has disconnected, return 0 (an error occurred)
+		//closing clients will happen when returning with a error
+		return 0;
+	}
+
+	//all went well - return 1
+	return 1;
+}
+
 void Server::closeClient(int client_sd) {
 	close(client_sd);
 }
+
 
 string Server::toString(int a) {
 	//declare stringstream

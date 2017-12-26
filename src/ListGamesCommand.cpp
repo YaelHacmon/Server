@@ -16,7 +16,10 @@ void ListGamesCommand::execute(vector<string> args) {
 	string list = list_.listWaitingGames();
 
 	//send list via server
-	server_.writeString(list, client);
+	//if problem occured - close client (exiting is done right after, anyway)
+	if (!server_.writeString(list, client)) {
+		server_.closeClient(client);
+	}
 
 	//end thread - we finished our work here :)
 	pthread_exit(NULL);
