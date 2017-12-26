@@ -100,6 +100,11 @@ private:
 	void handleGame(GameInfo& g);
 
 	/**
+	 * Beautifier method for closing both sockets and killing thread
+	 */
+	void exitThread(int client1_sd, int client2_sd);
+
+	/**
 	 * Helper function for cleaner code: converts integer to string
 	 */
 	string toString(int a);

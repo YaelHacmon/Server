@@ -194,16 +194,16 @@ void Server::handleGame(GameInfo& g) {
 	int color = 1;
 	int n = write(g.getClientA(), &color, sizeof(color));
 	if (n == -1) {
-		cout << "Error writing to socket" << endl;
-		return;
+		//if problem occured - close sockets and kill thread
+		exitThread(g.getClientA(), g.getClientB());
 	}
 
 	//Sending 2 to client 2 to show him he was the second to enter
 	color = 2;
 	n = write(g.getClientB(), &color, sizeof(color));
 	if (n == -1) {
-		cout << "Error writing to socket" << endl;
-		return;
+		//if problem occured - close sockets and kill thread
+		exitThread(g.getClientA(), g.getClientB());
 	}
 
 	//play game - accept commands from players
@@ -214,12 +214,7 @@ void Server::handleGame(GameInfo& g) {
 
 		//if a problem occurred - close socket and terminate thread (other client has already been notified of disconnection)
 		if(command == NULL) {
-			//close socket (if a socket is closed - does nothing)
-			closeClient(g.getClientA());
-			closeClient(g.getClientB());
-
-			//exit thread
-			pthread_exit(NULL);
+			exitThread(g.getClientA(), g.getClientB());
 		}
 
 		//split command by space
@@ -379,6 +374,16 @@ int Server::writeString(string s, int client_sd) {
 
 void Server::closeClient(int client_sd) {
 	close(client_sd);
+}
+
+
+void Server::exitThread(int client1_sd, int client2_sd) {
+	//close socket (if a socket is closed - does nothing)
+	closeClient(client1_sd);
+	closeClient(client2_sd);
+
+	//exit thread
+	pthread_exit(NULL);
 }
 
 
