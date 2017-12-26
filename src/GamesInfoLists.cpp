@@ -8,25 +8,39 @@ GamesInfoLists::GamesInfoLists() {}
 
 GamesInfoLists::~GamesInfoLists() {
 	for (vector<GameInfo>::const_iterator iter = games_.begin(); iter != games_.end(); iter++) {
-		delete *iter; //TODO - okay?
+		delete *iter;
 	}
 }
 
 
-string& GamesInfoLists::findGame(int client_sd) {
+GameInfo& GamesInfoLists::findGame(int client_sd) {
 	//search played games
 	for (vector<GameInfo>::const_iterator iter = games_.begin(); iter != games_.end(); iter++) {
 		//if given client is one of the playing clients
 		if (iter->getClientA() == client_sd || iter->getClientB() == client_sd) {
 			//return game name
-			return iter->getGameName();
+			return *iter;
 		}
 	}
 
-	//else - return the empty string
-	return "";
+	//else - return NULL
+	return NULL;
 }
 
+
+vector<GameInfo>::iterator GamesInfoLists::findGamePosition(int client_sd) {
+	//search played games
+	for (vector<GameInfo>::iterator iter = games_.begin(); iter != games_.end(); iter++) {
+		//if given client is one of the playing clients
+		if (iter->getClientA() == client_sd || iter->getClientB() == client_sd) {
+			//return iter
+			return iter;
+		}
+	}
+
+	//else - return end of list
+	return games_.end();
+}
 
 GameInfo& GamesInfoLists::findGame(string& name) {
 	//search played games
@@ -45,11 +59,24 @@ GameInfo& GamesInfoLists::findGame(string& name) {
 /**
  * Closes the given game (game given by name): searches for it in lists and removes from playing lists and closes descriptors.
  */
-void GamesInfoLists::closeGame(GameInfo& g) {
-	//TODO - does this need a mutex lock, or is the fact we are using a built in vector enough? and is it small enough??
-	pthread_mutex_lock(&vectorMutex_);
+void GamesInfoLists::removeGame(GameInfo& g) {
 	//find game's position in vector
 	vector<GameInfo>::iterator pos = find(games_.begin(), games_.end(), g);
+
+	//lock - this is a common resource, we must protect
+	pthread_mutex_lock(&vectorMutex_);
+	//remove game
+	games_.erase(pos);
+	pthread_mutex_unlock(&vectorMutex_);
+}
+
+
+void GamesInfoLists::removeGame(int client_sd) {
+	//find game's position in vector
+	vector<GameInfo>::iterator pos = findGame(client_sd);
+
+	//lock - this is a common resource, we must protect
+	pthread_mutex_lock(&vectorMutex_);
 	//remove game
 	games_.erase(pos);
 	pthread_mutex_unlock(&vectorMutex_);
@@ -70,19 +97,16 @@ string GamesInfoLists::listWaitingGames() {
 	return list;
 }
 
-/**
- * Starts a new game in the waiting list, with the given name and client's socket descriptor. Given sd is of first (black) player.
- */
-//TODO - why args??
-void startNewMatch(int client1_sd, vector<string> args);
-
-//TODO?
-bool sendMessageToClient(int client, string& msg);
-
 
 void GamesInfoLists::startNewGame(string name, int clientA) {
+	//create new game
 	GameInfo g = new GameInfo(name, clientA);
-	games_.push_back(g); //TODO - does this need a mutex?
+
+	//lock - this is a common resource, we must protect
+	pthread_mutex_lock(&vectorMutex_);
+	//add game to list
+	games_.push_back(g);
+	pthread_mutex_unlock(&vectorMutex_);
 }
 
 

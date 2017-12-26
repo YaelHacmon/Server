@@ -15,9 +15,16 @@
 
 class CloseCommand: public Command {
 public:
-	CloseCommand(Server &server);
-	virtual ~CloseCommand();
+	CloseCommand(Server& s, GamesInfoLists& list);
 
+	/**
+	 * Executes the action of this command.
+	 * In this case - closes the game played by the two given players (first and second argument in vector)
+	 *
+	 * Changes game status to ENDING
+	 *
+	 * @param args arguments for command's execution, by the set protocol of the certain instance
+	 */
 	virtual void execute(std::vector<std::string> args);
 };
 

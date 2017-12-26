@@ -30,9 +30,9 @@ public:
 	 * Helper method for closing a game in case of an error in playMove().
 	 * String can be returned by reference as it is not created inside method.
 	 *
-	 * In case of game not found - the empty string is returned
+	 * In case of game not found - NULL is returned
 	 */
-	string& findGame(int client_sd);
+	GameInfo& findGame(int client_sd);
 
 	/**
 	 * Finds and returns the GameInfo of the game with the given name.
@@ -43,26 +43,25 @@ public:
 	GameInfo& findGame(string& name);
 
 	/**
-	 * Closes the given game (game given by name): searches for it in lists and removes from playing lists and closes descriptors.
+	 * Removes the given game (game given by name): searches for it in lists and removes from playing lists
 	 */
-	void closeGame(GameInfo& g);
+	void removeGame(GameInfo& g); //TODO
+
+	/**
+	 * Removes the game played by given client: searches for it in lists and removes from playing lists
+	 */
+	void removeGame(int client_sd);
 
 	/**
 	 * Returns the list of games waiting for another player, separated with a space between them
 	 */
 	string listWaitingGames();
 
-	/**
-	 * Starts a new game in the waiting list, with the given name and client's socket descriptor. Given sd is of first (black) player.
-	 */
-	//TODO - why args??
-	void startNewMatch(int client1_sd, vector<string> args);
-
 	//TODO?
 	bool sendMessageToClient(int client, string& msg);
 
 	/**
-	 * Adds a new game to the list, as a waiting game
+	 * Starts a new waiting game in list, with the given name and client's socket descriptor. Given sd is of first (black) player.
 	 */
 	void startNewGame(string name, int clientA);
 
@@ -72,12 +71,20 @@ public:
 	 */
 	GameInfo joinGame(string name, int clientB);
 
+
 private:
 	//list of the games waiting to be played or being played
 	std::vector<GameInfo> games_;
 
 	//TODO - needed?
 	pthread_mutex_t vectorMutex_;
+
+	/**
+	 * Finds and returns the iterator of the game with the given client.
+	 *
+	 * In case of game not found - end() is returned
+	 */
+	vector<GameInfo>::iterator findGamePosition(int client_sd);
 };
 
 #endif /* SRC_Utilities_H_ */

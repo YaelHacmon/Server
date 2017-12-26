@@ -6,15 +6,15 @@
 
 using namespace std;
 
-ListGamesCommand::ListGamesCommand(Utilities &info): info(info) {
-	//Nothing right now
-}
+ListGamesCommand::ListGamesCommand(Server& s, GamesInfoLists& list): Command(s, list) {}
 
-ListGamesCommand::~ListGamesCommand() {
-	//Nothing right now
-}
+void ListGamesCommand::execute(vector<string> args) {
+	//get given client's sd (first argument)
+	int client = atoi(args[0].c_str());
 
-void ListGamesCommand::execute(int sender, vector<string> args) {
-	//TODO
-	//info.""(sender);
+	//get string of waiting games
+	string list = list_.listWaitingGames();
+
+	//send list via server
+	server_.writeString(list, client);
 }

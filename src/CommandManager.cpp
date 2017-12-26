@@ -5,12 +5,12 @@ using namespace std;
 
 //c'tor - new commands should be added here
 //TODO - see if objects can be on stack... probably not, due to scope or something
-CommandsManager::CommandsManager(Utilities& s) {
-	commandsMap["play"] = new PlayCommand(s);
-	commandsMap["start"] = new StartMatchCommand(s);
-	commandsMap["list_games"] = new ListGamesCommand(s);
-	commandsMap["join"] = new JoinCommand(s);
-	commandsMap["close"] = new CloseCommand(s);
+CommandsManager::CommandsManager(Server& s, GamesInfoLists& list) {
+	commandsMap["play"] = new PlayCommand(s, list);
+	commandsMap["start"] = new StartGameCommand(s, list);
+	commandsMap["list_games"] = new ListGamesCommand(s, list);
+	commandsMap["join"] = new JoinCommand(s, list);
+	commandsMap["close"] = new CloseCommand(s, list);
 }
 
 }
@@ -23,9 +23,9 @@ CommandsManager::~CommandsManager() {
 	delete commandsMap["close"];
 }
 
-void CommandsManager::executeCommand(int sender, string command, vector<string> args) {
+void CommandsManager::executeCommand(string command, vector<string> args) {
 	Command *currCommand = commandsMap[command];
-	currCommand->execute(sender, args);
+	currCommand->execute(args);
 }
 
 

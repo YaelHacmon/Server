@@ -6,9 +6,7 @@
 
 using namespace std;
 
-PlayCommand::PlayCommand(Server& s): server_(s) {}
-
-PlayCommand::~PlayCommand() {} //TODO - is this needed? because there is no dynamic memory used...
+PlayCommand::PlayCommand(Server& s, GamesInfoLists& list): Command(s, list) {}
 
 void PlayCommand::execute(vector<string> args) {
 	//get clients - first and second argument, by
@@ -19,21 +17,21 @@ void PlayCommand::execute(vector<string> args) {
 	int row = server_.readNum(client1_sd, client2_sd);
 	//if problem occurred - close game
 	if (row == -1) {
-		//close using client1 (arbitrarily)
-		server_.closeGame(client1_sd);
+		//close game
+		close(client1_sd, client2_sd);
 	}
 
 	//if game is over (-2) -  close game TODO - required??
 	if(row == -2){
-		//close using client1 (arbitrarily)
-		server_.closeGame(client1_sd);
+		//close game
+		close(client1_sd, client2_sd);
 	}
 
 	//write row to other player
 	//if an error occurred -  close game
 	if(!server_.writeNum(row, client1_sd, client2_sd)) {
-		//close using client1 (arbitrarily)
-		server_.closeGame(client1_sd);
+		//close game
+		close(client1_sd, client2_sd);
 	}
 
 	//if other player made a move (did not send -1) - read and write column of player's move
@@ -42,19 +40,26 @@ void PlayCommand::execute(vector<string> args) {
 		int column = server_.readNum(client1_sd, client2_sd);
 		//if problem occurred - close game
 		if (column == -1) {
-			//close using client1 (arbitrarily)
-			server_.closeGame(client1_sd);
+			//close game
+			close(client1_sd, client2_sd);
 		}
 
 		//write column
 		//if an error occurred - close game
 		if(!server_.writeNum(column, client1_sd, client2_sd)) {
-			//close using client1 (arbitrarily)
-			server_.closeGame(client1_sd);
+			//close game
+			close(client1_sd, client2_sd);
 		}
 	}
 
-
-	//method ended successfully - return 0 (game is not over) TODO - what??
+	//method ended successfully
 }
 
+
+void PlayCommand::close(int client1_sd, int client2_sd) {
+	//close sockets
+	server_.closeClient(client1_sd);
+	server_.closeClient(client2_sd);
+	//remove from list - by client 1 (arbitrary, it doens't matter)
+	list_.removeGame(client1_sd);
+}

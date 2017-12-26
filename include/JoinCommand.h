@@ -16,8 +16,7 @@ using namespace std;
 
 class JoinCommand: public Command {
 public:
-	JoinCommand(Server &server);
-	virtual ~JoinCommand();
+	JoinCommand(Server& s, GamesInfoLists& list);
 
 	/**
 	 * Executes the action of this command.

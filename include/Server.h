@@ -34,29 +34,43 @@ public:
 	void stop();
 
 	/**
-	 * Reads from client1.
-	 * @return number read if succeeded, -1 if not (and should break loop and close game)
+	 * Reads integer from client1.
+	 * @return number read if succeeded, -1 if not
 	 */
 	int readNum(int client1_sd, int client2_sd);
 
 	/**
-	 * Reads from client1.
-	 * @return 1 if succeeded, 0 if not (and should break loop and close game)
+	 * Writes integer to client2.
+	 * @return 1 if succeeded, 0 if not
 	 */
 	int writeNum(int num, int client1_sd, int client2_sd);
 
 	/**
-	 * Closes the game played by the given client.
-	 * Helper method for aborting when an error occurs
+	 * Reads string from client.
+	 * @return string read if succeeded, NULL if not
+	 */
+	string readString(int client_sd);
+
+	/**
+	 * Reads string from client1.
+	 * @return string read if succeeded, NULL if not
+	 */
+	string readString(int client1_sd, int client2_sd);
+
+	/**
+	 * Writes string to client.
+	 * @return 1 if succeeded, 0 if not
+	 */
+	int writeString(string s, int client_sd);
+
+
+	/**
+	 * Closes the cgiven client socket
 	 *
 	 * @param socket descriptor of client
 	 */
-	void closeGame(int client_sd);
+	void closeClient(int client_sd);
 
-	/**
-	 * Join the game at the given index in list, joining player's socket descriptor is given. Joining player is always second (white).
-	 */
-	void joinGame(int client2_sd, string name);
 
 private:
 	int port;
@@ -68,15 +82,15 @@ private:
 	//handles the lists of existing games and their information
 	GamesInfoLists gameList_;
 
-	/**TODO
-	 * Handles the game of two clients
+	/**
+	 * Endless loop for accepting clients in separate thread.
 	 */
-	//void handleClients(int client1_sd, int client2_sd);
+	void* acceptClients();
 
 	/**
 	 * Handles the initial communication with a client: asking to start\join a game and accepting answers
 	 */
-	void handleSingleClient(int client_sd);
+	void* handleSingleClient(void* sd);
 
 	/**
 	 * Handles the full game between two clients.
@@ -88,6 +102,10 @@ private:
 	 */
 	string toString(int a);
 
+	/**
+	 * Helper function for splitting a command by space
+	 */
+	vector<string> split(string& line);
 };
 
 

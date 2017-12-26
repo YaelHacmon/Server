@@ -13,8 +13,9 @@ public:
 	/**
 	 * Constructor taking the server to be executed on, by reference.
 	 * @param server to apply command to
+	 * @param list manager of list of games
 	 */
-	Command(Server &server): server_(server) {};
+	Command(Server &server, GamesInfoLists& list): server_(server), list_(list) {};
 
 	//virtual destructor
 	virtual ~Command() {}
@@ -27,6 +28,7 @@ public:
 
 protected:
 	Server server_;
+	GamesInfoLists list_;
 };
 
 #endif /* COMMAND_H_ */

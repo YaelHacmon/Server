@@ -13,6 +13,8 @@
 #include <stdio.h>
 #include <cstdlib>
 #include <iterator>
+#include <pthread.h>
+
 #define MAX_CONNECTED_CLIENTS 10
 
 using namespace std;
@@ -22,9 +24,9 @@ using namespace std;
 class CommandsManager;
 
 
-Server::Server(int port): port(port), serverSocket(0){}
+Server::Server(int port): port(port), serverSocket(0), commandManager_(this) {}
 
-Server::Server(string fileName): serverSocket(0){
+Server::Server(string fileName): serverSocket(0), gameList_(), commandManager_(this, gameList_)  {
 	ifstream config;
 	config.open(fileName.c_str(), std::fstream::in);
 
@@ -69,49 +71,63 @@ void Server::start(){
 	//start listening for clients
 	listen(serverSocket, MAX_CONNECTED_CLIENTS);
 
-	//declare clients' address
-	struct sockaddr_in client1Address, client2Address;
-	socklen_t client1AddressLen, client2AddressLen;
-	int client1_sd, client2_sd;
+	//TODO - create thread for accepting clients
 
-	//initialize the addresses - to allow for using 'accept' every time
-	client1AddressLen = sizeof((struct sockaddr*) &client1Address);
-	client2AddressLen = sizeof((struct sockaddr*) &client2Address);
-
-	//TODO - somehow this also needs to be multithreaded... the two accepts should be separated
 
 	//if game ended, start a new one
 	while(true){
-		//Accepting first client
-		client1_sd = accept(serverSocket, (struct sockaddr* )&client1Address, &client1AddressLen);
-
-		if (client1_sd == -1){
-			throw "Error on accept";
-		}
-
-		//TODO - I think this should be removed... because at each time we only accept a single client and handle with handleSingleClient()
-		//Accepting second client
-		client2_sd = accept(serverSocket, (struct sockaddr* )&client2Address, &client2AddressLen);
-
-		if (client2_sd == -1){
-			throw "Error on accept";
-		}
-
-		//handle the clients - TODO - change to handleSingleClient(), using multithreading
-		//handleClients(client1_sd, client2_sd);
+		//TODO - cin, check if exit
 
 	} //end big loop
 } //end function
 
+void* Server::acceptClients() {
+	//declare clients' address
+	struct sockaddr_in clientAddress;
+	socklen_t clientAddressLen;
+	int client_sd;
+	pthread_t identifier = 0;
 
-void Server::handleSingleClient(int client_sd) {
-	string command;
-	//TODO accept command from client (if he wants to start a game or see the list of games->accept command with game to join)
+	//initialize the addresses - to allow for using 'accept' every time
+	clientAddressLen = sizeof((struct sockaddr*) &clientAddress);
 
-	//TODO - use helper method
+	while (true) {
+		//get
+		identifier++;
+
+		//Accepting first client
+		client_sd = accept(serverSocket, (struct sockaddr* )&clientAddress, &clientAddressLen);
+
+		if (client_sd == -1){
+			throw "Error on accept";
+		}
+
+		//else - open thread
+		int rc = pthread_create(&identifier, NULL, handleSingleClient, (void *)client_sd);
+		if (rc) {
+			cout << "Error: unable to create thread, " << rc << endl;
+			exit(-1);
+		}
+	}
+}
+
+
+void* Server::handleSingleClient(void* sd) {
+	//cast client sd to integer - first cast to long as instructed
+	long temp = (long)sd;
+	int client_sd = (int) temp;
+
+	//read string of command from given client
+	string command = readString(client_sd);
+
+	//if a problem occurred - close socket
+	if(command == NULL) {
+		//close socket (if socket closed - does nothing)
+		closeClient(client_sd);
+	}
+
 	//split command by space
-	istringstream iss(command);
-	vector<string> args((istream_iterator<string>(iss)), istream_iterator<string>());
+	vector<string> args = split(command);
 
 	//make command the first word
 	command = args[0];
@@ -148,15 +164,19 @@ void Server::handleGame(GameInfo& g) {
 	}
 
 	//play game - accept commands from players
-	//loop will never be broken, until "close" command will be invoked and close thread     TODO - true?
+	//loop will keep going until thread is terminated
 	int temp_sd;
 	while (true) {
-		string command;
-		//TODO send\receive command via server - receive from client1 - switching is done at end of loop
+		string command = readString(g.getClientA(), g.getClientB());
+
+		//if a problem occurred - close socket
+		if(command == NULL) {
+			//close socket (if socket closed - does nothing)
+			closeClient(client_sd);
+		}
 
 		//split command by space
-		istringstream iss(command);
-		vector<string> args((istream_iterator<string>(iss)), istream_iterator<string>());
+		vector<string> args = split(command);
 
 		//make command the first word
 		command = args[0];
@@ -175,7 +195,14 @@ void Server::handleGame(GameInfo& g) {
 
 		//switch players and keep playing
 		g.swapClients();
-	}
+
+	}//end game loop
+
+	//close sockets
+	closeClient(g.getClientA());
+	closeClient(g.getClientB());
+	//remove from list - by client 1 (arbitrary, it doens't matter)
+	gameList_.removeGame(g.getClientA());
 }
 
 
@@ -235,24 +262,23 @@ int Server::writeNum(int num, int client1_sd, int client2_sd) {
 }
 
 
-void Server::closeGame(int client_sd) {
-	//find game
-	GameInfo g = gameList_.findGame(client_sd);
-	//close both sockets - we don't know which one was given, so getting both via GameInfo
-	close(g.getClientA());
-	close(g.getClientB());
-	//remove from list
-	gameList_.closeGame(g);
+void Server::closeClient(int client_sd) {
+	close(client_sd);
 }
 
+string Server::toString(int a) {
+	//declare stringstream
+	stringstream ss;
+	//add integer to stream
+	ss << a;
+	//make stream to string
+	string str = ss.str();
+	//return string
+	return str;
+}
 
-void Server::joinGame(int client2_sd, string name) {
-	//join game
-	GameInfo g = gameList_.joinGame(name, client2_sd);
-
-	//if returned GameInfo is not NULL - play game
-	if (g != NULL) {
-		handleGame(g);
-	}
-	//TODO - will be broked via "close"?
+vector<string> Server::split(string& line) {
+	istringstream iss(line);
+	vector<string> args((istream_iterator<string>(iss)), istream_iterator<string>());
+	return args;
 }

@@ -11,7 +11,7 @@ public:
 	/**
 	 * Default c'tor, creates map with Commands. Accepts server for commands to act on
 	 */
-	CommandsManager(Utilities& s);
+	CommandsManager(Server& s, GamesInfoLists& list);
 
 	/**
 	 * Destructor to release map
@@ -26,6 +26,7 @@ public:
 private:
 	//map of commands, where the key is a string (and value is the Command, of course)
 	map<string, Command*> commandsMap;
+
 };
 
 

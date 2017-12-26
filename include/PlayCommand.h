@@ -13,7 +13,7 @@ public:
 	 * Constructor taking the server to be executed on, by reference.
 	 * @param server to apply command to
 	 */
-	PlayCommand(Server& s);
+	PlayCommand(Server& s, GamesInfoLists& list);
 
 	/**
 	 * Executes the action of this command.
@@ -24,6 +24,12 @@ public:
 	 * @param args arguments for command's execution, by the set protocol of the certain instance
 	 */
 	virtual void execute(vector<string> args);
+
+protected:
+	/**
+	 * Closes game played now - calls server to close sockets and calls gameInfoLists to remove game
+	 */
+	virtual void close(int client1_sd, int client2_sd);
 };
 
 

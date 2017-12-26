@@ -10,10 +10,13 @@
 
 using namespace std;
 
-StartGameCommand::StartGameCommand(Server &server): info(info) {}
+StartGameCommand::StartGameCommand(Server& s, GamesInfoLists& list): Command(s, list) {}
 
-StartGameCommand::~StartGameCommand() {}
+void StartGameCommand::execute(vector<string> args) {
+	//get given game name (first argument) and client's sd (second argument)
+	string name = args[0];
+	int clientB = atoi(args[1].c_str());
 
-void StartGameCommand::execute(int sender, vector<string> args) {
-	info.startNewMatch(sender, args);
+	//call list to start new game
+	list_.startNewGame(name, clientB);
 }
