@@ -17,4 +17,7 @@ void ListGamesCommand::execute(vector<string> args) {
 
 	//send list via server
 	server_.writeString(list, client);
+
+	//end thread - we finished our work here :)
+	pthread_exit(NULL);
 }

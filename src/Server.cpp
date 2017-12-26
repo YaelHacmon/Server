@@ -23,9 +23,7 @@ using namespace std;
 //declare CommandManager as class, to avoid loop of headers TODO - right way to do this?
 class CommandsManager;
 
-
-Server::Server(int port): port(port), serverSocket(0), commandManager_(this) {}
-
+//vector will be initialized via default c'tor
 Server::Server(string fileName): serverSocket(0), gameList_(), commandManager_(this, gameList_)  {
 	ifstream config;
 	config.open(fileName.c_str(), std::fstream::in);
@@ -71,31 +69,62 @@ void Server::start(){
 	//start listening for clients
 	listen(serverSocket, MAX_CONNECTED_CLIENTS);
 
-	//TODO - create thread for accepting clients
+	//else - open thread
+	//create identifier
+	pthread_t tid;
 
+	//TODO - why is this not working?
+	int rc = pthread_create(&tid, NULL, acceptClients, NULL);
+	if (rc) {
+		cout << "Error: unable to create thread, " << rc << endl;
+		exit(-1);
+	}
 
-	//if game ended, start a new one
+	//push identifier into vector
+	threads_.push_back(tid);
+
+	//accept input from user
 	while(true){
-		//TODO - cin, check if exit
+		string input;
+		cin >> input;
+		//no need for string input validation
+		//if input is "exit" - break loop and close all threads
+		if (input == "exit") {
+			break;
+		}
+	}
 
-	} //end big loop
-} //end function
+	//loop was broken - input is "exit", erver should be closed
+
+	//first, close all sockets (clients will automatically try to read, get 0 and understand that server has disconnected)
+	//get vector of all open sockets
+	vector<int> sockets = gameList_.getAllOpenSockets();
+	//close all sockets
+	for (vector<int>::const_iterator iter = sockets.begin(); iter != sockets.end(); iter++) {
+		closeClient(*iter);
+	}
+
+	//then, kill all threads
+	for (vector<pthread_t>::const_iterator iter = threads_.begin(); iter != threads_.end(); iter++) {
+		//cancel theard
+		pthread_cancel(*iter);
+	}
+
+	//exit server by ending start() method
+
+}
 
 void* Server::acceptClients() {
 	//declare clients' address
 	struct sockaddr_in clientAddress;
 	socklen_t clientAddressLen;
 	int client_sd;
-	pthread_t identifier = 0;
 
 	//initialize the addresses - to allow for using 'accept' every time
 	clientAddressLen = sizeof((struct sockaddr*) &clientAddress);
 
 	while (true) {
-		//get
-		identifier++;
-
-		//Accepting first client
+		//Accepting client
 		client_sd = accept(serverSocket, (struct sockaddr* )&clientAddress, &clientAddressLen);
 
 		if (client_sd == -1){
@@ -103,11 +132,19 @@ void* Server::acceptClients() {
 		}
 
 		//else - open thread
-		int rc = pthread_create(&identifier, NULL, handleSingleClient, (void *)client_sd);
+		//create identifier
+		pthread_t tid;
+
+		int rc = pthread_create(&tid, NULL, handleSingleClient, (void *)client_sd);
 		if (rc) {
 			cout << "Error: unable to create thread, " << rc << endl;
 			exit(-1);
 		}
+
+		//push identifier into vector
+		threads_.push_back(tid);
+
+		//keep on accepting
 	}
 }
 
@@ -140,9 +177,7 @@ void* Server::handleSingleClient(void* sd) {
 	//execute command
 	commandManager_.executeCommand(command, args);
 
-	//TODO - explanation - will either open a game in the game lists, and exit thread, or create new thread to play a game
-	//so we don't need to do anything else
-	//TODO - do we need pthread_exit()?
+	//explanation - will either open a game in the game lists, and exit thread, or create new thread to play a game (via join)
 }
 
 
@@ -169,10 +204,11 @@ void Server::handleGame(GameInfo& g) {
 	while (true) {
 		string command = readString(g.getClientA(), g.getClientB());
 
-		//if a problem occurred - close socket
+		//if a problem occurred - close sockets (other client has already been notified of disconnection)
 		if(command == NULL) {
-			//close socket (if socket closed - does nothing)
-			closeClient(client_sd);
+			//close socket (if socket is closed - does nothing)
+			closeClient(g.getClientA());
+			closeClient(g.getClientB());
 		}
 
 		//split command by space
@@ -193,16 +229,10 @@ void Server::handleGame(GameInfo& g) {
 		//execute command
 		commandManager_.executeCommand(command, args);
 
-		//switch players and keep playing
+		//switch players and keep communicating game
 		g.swapClients();
 
-	}//end game loop
-
-	//close sockets
-	closeClient(g.getClientA());
-	closeClient(g.getClientB());
-	//remove from list - by client 1 (arbitrary, it doens't matter)
-	gameList_.removeGame(g.getClientA());
+	}//end of game loop - will end via killing thread ("close" command)
 }
 
 

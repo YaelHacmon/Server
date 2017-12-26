@@ -2,7 +2,7 @@
  * PlayCommand.cpp
  */
 #include "../include/PlayCommand.h"
-
+#include <pthread.h>
 
 using namespace std;
 
@@ -53,6 +53,7 @@ void PlayCommand::execute(vector<string> args) {
 	}
 
 	//method ended successfully
+	//thread should not be killed (as opposed to other commands), because game is still being played
 }
 
 
@@ -62,4 +63,7 @@ void PlayCommand::close(int client1_sd, int client2_sd) {
 	server_.closeClient(client2_sd);
 	//remove from list - by client 1 (arbitrary, it doens't matter)
 	list_.removeGame(client1_sd);
+
+	//kill thread
+	pthread_exit(NULL);
 }

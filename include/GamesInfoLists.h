@@ -67,10 +67,16 @@ public:
 
 	/**
 	 * Joins given player (by sd) to a given existing game (by name).
-	 * Returns the updated GameInfo, or NULL if no such game exists
+	 * Checks that game exists and can be joined.
+	 * Returns the updated GameInfo, or NULL if either no such game exists or game is being played
 	 */
 	GameInfo joinGame(string name, int clientB);
 
+	/**
+	 * Returns the socket descriptors of all currently open sockets, in a vector of integers.
+	 * Used for closing the server
+	 */
+	vector<int> getAllOpenSockets();
 
 private:
 	//list of the games waiting to be played or being played

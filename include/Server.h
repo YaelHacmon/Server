@@ -25,13 +25,12 @@ class Server {
 	 */
 
 public:
-	Server(int port);
 	/*
 	 * Getting the port from file
 	 */
 	Server(string fileName);
+
 	void start();
-	void stop();
 
 	/**
 	 * Reads integer from client1.
@@ -75,6 +74,9 @@ public:
 private:
 	int port;
 	int serverSocket;
+
+	//vector of threads
+	vector<pthread_t> threads_;
 
 	//manager of commands
 	CommandsManager commandManager_;

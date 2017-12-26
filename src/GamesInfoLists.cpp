@@ -65,8 +65,12 @@ void GamesInfoLists::removeGame(GameInfo& g) {
 
 	//lock - this is a common resource, we must protect
 	pthread_mutex_lock(&vectorMutex_);
+
+	//delete GameInfo
+	delete *pos; //TODO - inside lock? will work?
 	//remove game
 	games_.erase(pos);
+
 	pthread_mutex_unlock(&vectorMutex_);
 }
 
@@ -77,8 +81,12 @@ void GamesInfoLists::removeGame(int client_sd) {
 
 	//lock - this is a common resource, we must protect
 	pthread_mutex_lock(&vectorMutex_);
+
+	//delete GameInfo
+	delete *pos; //TODO - inside lock? will work?
 	//remove game
 	games_.erase(pos);
+
 	pthread_mutex_unlock(&vectorMutex_);
 }
 
@@ -113,11 +121,27 @@ void GamesInfoLists::startNewGame(string name, int clientA) {
 GameInfo GamesInfoLists::joinGame(string name, int clientB) {
 	//find game
 	GameInfo g = findGame(name);
-	//if game is not null - join it
-	if (g != NULL) {
+	//if game is not null and is waiting - join it
+	if (g != NULL && g.isWaiting()) {
 		g.play(clientB);
 		return g;
 	}
 
+	//else - game does not exist or is being played - return null
 	return NULL;
+}
+
+
+vector<int> GamesInfoLists::getAllOpenSockets() {
+	vector<int> sockets;
+
+	for (vector<GameInfo>::const_iterator iter = games_.begin(); iter != games_.end(); iter++) {
+		//push first client into vector
+		sockets.push_back(iter->getClientA());
+
+		//if game is not waiting (=game is playing) - add also second client (second client is also an open socket
+		if (!iter->isWaiting()) {
+			sockets.push_back(iter->getClientB());
+		}
+	}
 }

@@ -19,4 +19,7 @@ void StartGameCommand::execute(vector<string> args) {
 
 	//call list to start new game
 	list_.startNewGame(name, clientB);
+
+	//end thread - our work is done :)
+	pthread_exit(NULL);
 }
