@@ -99,17 +99,15 @@ void Server::start(){
 		}
 	}
 
-	//loop was broken - input is "exit", erver should be closed
+	//loop was broken - input is "exit", server should be closed
 
 	//first, close all sockets (clients will automatically try to read, get 0 and understand that server has disconnected)
-	gameList_.closeAllOpenSockets();
-	/*TODO - this or the other?
 	//get vector of all open sockets
 	vector<int> sockets = gameList_.getAllOpenSockets();
 	//close all sockets
 	for (vector<int>::const_iterator iter = sockets.begin(); iter != sockets.end(); iter++) {
 		close(*iter);
-	}*/
+	}
 
 	//then, kill all threads
 	for (vector<pthread_t>::const_iterator iter = threads_.begin(); iter != threads_.end(); iter++) {
@@ -303,6 +301,7 @@ int Server::writeNum(int num, int client1_sd, int client2_sd) {
 string readString(int client_sd) {
 	string str;
 	//TODO - is it right to resize each time
+	//resize to maximal read string size
 	str.resize(MAX_COMMAND_LENGTH);
 
 	//read string sent
@@ -323,6 +322,7 @@ string readString(int client_sd) {
 string Server::readString(int client1_sd, int client2_sd) {
 	string str;
 	//TODO - is it right to resize each time
+	//resize to maximal read string size
 	str.resize(MAX_COMMAND_LENGTH);
 
 	//read string sent
@@ -356,6 +356,7 @@ string Server::readString(int client1_sd, int client2_sd) {
 
 int Server::writeString(string s, int client_sd) {
 	//TODO - is it right to resize each time
+	//resize to maximal sent string size
 	s.resize(MAX_STRING_LENGTH);
 
 	//write number to opponent

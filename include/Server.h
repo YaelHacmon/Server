@@ -33,7 +33,7 @@ public:
 	void start();
 
 	/**
-	 * Reads integer from client1.
+	 * Reads integer from client1. (Protocol: -2 is noMoves flag)
 	 * @return number read if succeeded, -1 if not
 	 */
 	int readNum(int client1_sd, int client2_sd);

@@ -18,37 +18,31 @@ void PlayCommand::execute(vector<string> args) {
 	//if problem occurred - close game
 	if (row == -1) {
 		//close game
-		close(client1_sd, client2_sd);
+		closeGame(client1_sd, client2_sd);
 	}
 
-	//if game is over (-2) -  close game TODO - required??
-	if(row == -2){
-		//close game
-		close(client1_sd, client2_sd);
-	}
-
-	//write row to other player
+	//write row to other player, agreed flag for no moves is (-2)
 	//if an error occurred -  close game
 	if(!server_.writeNum(row, client1_sd, client2_sd)) {
 		//close game
-		close(client1_sd, client2_sd);
+		closeGame(client1_sd, client2_sd);
 	}
 
-	//if other player made a move (did not send -1) - read and write column of player's move
-	if (row != -1) {
+	//if other player made a move (did not send -2) - read and write column of player's move
+	if (row != -2) {
 		//read column
 		int column = server_.readNum(client1_sd, client2_sd);
 		//if problem occurred - close game
 		if (column == -1) {
 			//close game
-			close(client1_sd, client2_sd);
+			closeGame(client1_sd, client2_sd);
 		}
 
 		//write column
 		//if an error occurred - close game
 		if(!server_.writeNum(column, client1_sd, client2_sd)) {
 			//close game
-			close(client1_sd, client2_sd);
+			closeGame(client1_sd, client2_sd);
 		}
 	}
 
@@ -57,13 +51,14 @@ void PlayCommand::execute(vector<string> args) {
 }
 
 
-void PlayCommand::close(int client1_sd, int client2_sd) {
+void PlayCommand::closeGame(int client1_sd, int client2_sd) {
 	//close sockets
-	server_.closeClient(client1_sd);
-	server_.closeClient(client2_sd);
+	close(client1_sd);
+	close(client2_sd);
 	//remove from list - by client 1 (arbitrary, it doens't matter)
 	list_.removeGame(client1_sd);
 
-	//kill thread
+	//kill thread - an error occured and we cannot keep on playing
+	//(client will read 0 from server and know that server disconnected)
 	pthread_exit(NULL);
 }

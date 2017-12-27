@@ -13,12 +13,12 @@ void CloseCommand::execute(vector<string> args) {
 	GameInfo g = list_.findGame(client1_sd);
 
 	//close sockets - we don't know who is which, so close using socket despcriptors from GameInfo
-	server_.closeClient(g.getClientA());
-	server_.closeClient(g.getClientB());
+	close(g.getClientA());
+	close(g.getClientB());
 
 	//remove from list - by client 1 (arbitrary, it doens't matter)
 	list_.removeGame(client1_sd);
 
-	//kill thread
+	//kill thread of game - to end game
 	pthread_exit(NULL);
 }

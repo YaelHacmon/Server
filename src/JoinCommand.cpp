@@ -25,7 +25,6 @@ void JoinCommand::execute(vector<string> args) {
 		server_.handleGame(g);
 	}
 
-	//end thread - game does not exist or is already being played
-	pthread_exit(NULL);
+	//end thread via return from method - game does not exist or is already being played
 }
 

@@ -131,7 +131,7 @@ GameInfo GamesInfoLists::joinGame(string name, int clientB) {
 	return NULL;
 }
 
-/*TODO - needed?
+
 vector<int> GamesInfoLists::getAllOpenSockets() {
 	vector<int> sockets;
 
@@ -142,19 +142,6 @@ vector<int> GamesInfoLists::getAllOpenSockets() {
 		//if game is not waiting (=game is playing) - add also second client (second client is also an open socket)
 		if (!iter->isWaiting()) {
 			sockets.push_back(iter->getClientB());
-		}
-	}
-}*/
-
-
-void GamesInfoLists::closeAllOpenSockets() {
-	for (vector<GameInfo>::const_iterator iter = games_.begin(); iter != games_.end(); iter++) {
-		//close first client
-		close(iter->getClientA());
-
-		//if game is not waiting (=game is playing) - close also second client (second client is also an open socket)
-		if (!iter->isWaiting()) {
-			close(iter->getClientB());
 		}
 	}
 }

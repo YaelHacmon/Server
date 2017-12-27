@@ -29,7 +29,7 @@ protected:
 	/**
 	 * Closes game played now - calls server to close sockets and calls gameInfoLists to remove game
 	 */
-	virtual void close(int client1_sd, int client2_sd);
+	virtual void closeGame(int client1_sd, int client2_sd);
 };
 
 
