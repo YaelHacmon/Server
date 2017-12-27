@@ -76,7 +76,12 @@ public:
 	 * Returns the socket descriptors of all currently open sockets, in a vector of integers.
 	 * Used for closing the server
 	 */
-	vector<int> getAllOpenSockets();
+	//vector<int> getAllOpenSockets(); //TODO - needed?
+
+	/**
+	 * Closes all the currently open sockets
+	 */
+	void closeAllOpenSockets();
 
 private:
 	//list of the games waiting to be played or being played

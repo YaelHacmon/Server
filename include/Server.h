@@ -62,15 +62,6 @@ public:
 	 */
 	int writeString(string s, int client_sd);
 
-
-	/**
-	 * Closes the cgiven client socket
-	 *
-	 * @param socket descriptor of client
-	 */
-	void closeClient(int client_sd);
-
-
 private:
 	int port;
 	int serverSocket;
@@ -87,7 +78,7 @@ private:
 	/**
 	 * Endless loop for accepting clients in separate thread.
 	 */
-	void* acceptClients();
+	void* acceptClients(void* null);
 
 	/**
 	 * Handles the initial communication with a client: asking to start\join a game and accepting answers

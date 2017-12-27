@@ -102,12 +102,14 @@ void Server::start(){
 	//loop was broken - input is "exit", erver should be closed
 
 	//first, close all sockets (clients will automatically try to read, get 0 and understand that server has disconnected)
+	gameList_.closeAllOpenSockets();
+	/*TODO - this or the other?
 	//get vector of all open sockets
 	vector<int> sockets = gameList_.getAllOpenSockets();
 	//close all sockets
 	for (vector<int>::const_iterator iter = sockets.begin(); iter != sockets.end(); iter++) {
-		closeClient(*iter);
-	}
+		close(*iter);
+	}*/
 
 	//then, kill all threads
 	for (vector<pthread_t>::const_iterator iter = threads_.begin(); iter != threads_.end(); iter++) {
@@ -119,7 +121,7 @@ void Server::start(){
 
 }
 
-void* Server::acceptClients() {
+void* Server::acceptClients(void* null) {
 	//declare clients' address
 	struct sockaddr_in clientAddress;
 	socklen_t clientAddressLen;
@@ -143,7 +145,7 @@ void* Server::acceptClients() {
 		int rc = pthread_create(&tid, NULL, handleSingleClient, (void *)client_sd);
 		if (rc) {
 			cout << "Error: unable to create thread, " << rc << endl;
-			exit(-1);
+			pthread_exit(NULL);
 		}
 
 		//push identifier into vector
@@ -165,10 +167,10 @@ void* Server::handleSingleClient(void* sd) {
 	//if a problem occurred - close socket and terminate thread
 	if(command == NULL) {
 		//close socket (if socket is already closed - does nothing)
-		closeClient(client_sd);
+		close(client_sd);
 
 		//exit thread
-		pthread_exit(NULL);
+		pthread_exit(NULL); //TODO - return?
 	}
 
 	//split command by space
@@ -372,18 +374,14 @@ int Server::writeString(string s, int client_sd) {
 	return 1;
 }
 
-void Server::closeClient(int client_sd) {
-	close(client_sd);
-}
-
 
 void Server::exitThread(int client1_sd, int client2_sd) {
 	//close socket (if a socket is closed - does nothing)
-	closeClient(client1_sd);
-	closeClient(client2_sd);
+	close(client1_sd);
+	close(client2_sd);
 
 	//exit thread
-	pthread_exit(NULL);
+	pthread_exit(NULL); //TODO - return instead?
 }
 
 
