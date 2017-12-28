@@ -1,8 +1,7 @@
-/*
- * PlayCommand.cpp
- */
 #include "../include/PlayCommand.h"
 #include <pthread.h>
+#include <unistd.h> //for close()
+#include <cstdlib> //for atoi()
 
 using namespace std;
 

@@ -2,9 +2,9 @@
 #define COMMANDMANAGER_H_
 
 #include "GamesInfoLists.h"
-#include <map>
 #include "Server.h"
 #include "Command.h"
+#include <map>
 
 class CommandsManager {
 public:
@@ -14,7 +14,7 @@ public:
 	 * @param list of games to act on
 	 * declare server as class to avoid header include loop
 	 */
-	CommandsManager(class Server& s, GamesInfoLists& list);
+	CommandsManager(Server& s, GamesInfoLists& list);
 
 	/**
 	 * Destructor to release map

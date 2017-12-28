@@ -1,11 +1,5 @@
-/*
- * JoinCommand.cpp
- *
- *      Author: yael
- */
-
 #include "JoinCommand.h"
-
+#include <cstdlib> //for atoi()
 
 using namespace std;
 

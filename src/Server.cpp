@@ -1,7 +1,3 @@
-/*
- * server.cpp
- */
-
 #include "../include/Server.h"
 
 #include <sys/socket.h>
@@ -12,8 +8,10 @@
 #include <fstream>
 #include <stdio.h>
 #include <cstdlib>
-#include <iterator>
-#include <pthread.h>
+#include <iterator> //for istream_iterator
+#include <sstream> //for istringstream
+#include <pthread.h> //for multithreading :)
+
 
 #define MAX_CONNECTED_CLIENTS 10
 //set maximal command length to 60 bytes (longest command - start/close <name> - is at most 56 characters)
@@ -75,7 +73,7 @@ void Server::start(){
 	pthread_t tid;
 
 	//TODO - why is this not working?
-	int rc = pthread_create(&tid, NULL, acceptClients, NULL);
+	int rc = pthread_create(&tid, NULL, Server::acceptClients, NULL);
 	if (rc) {
 		cout << "Error: unable to create thread, " << rc << endl;
 		exit(-1);
@@ -115,7 +113,9 @@ void Server::start(){
 
 }
 
-void* Server::acceptClients(void* null) {
+void* Server::acceptClients(void* s) {
+	Server server = (Server) s;
+
 	//declare clients' address
 	struct sockaddr_in clientAddress;
 	socklen_t clientAddressLen;
@@ -126,7 +126,7 @@ void* Server::acceptClients(void* null) {
 
 	while (true) {
 		//Accepting client
-		client_sd = accept(serverSocket, (struct sockaddr* )&clientAddress, &clientAddressLen);
+		client_sd = accept(server.getServerSocket(), (struct sockaddr* )&clientAddress, &clientAddressLen);
 
 		if (client_sd == -1){
 			throw "Error on accept";
@@ -136,52 +136,26 @@ void* Server::acceptClients(void* null) {
 		//create identifier
 		pthread_t tid;
 
-		int rc = pthread_create(&tid, NULL, handleSingleClient, (void *)client_sd);
+		int rc = pthread_create(&tid, NULL, Server::handleSingleClient, (void *)ClientHandler(this, client_sd));
 		if (rc) {
 			cout << "Error: unable to create thread, " << rc << endl;
 			pthread_exit(NULL);
 		}
 
 		//push identifier into vector
-		threads_.push_back(tid);
+		server.getThreadVector().push_back(tid);
 
 		//keep on accepting
 	}
 }
 
 
-void* Server::handleSingleClient(void* sd) {
-	//cast client sd to integer - first cast to long as instructed
-	long temp = (long)sd;
-	int client_sd = (int) temp;
+void* Server::handleSingleClient(void* ch) {
+	//cast to client handler
+	ClientHandler handler = (ClientHandler) ch;
 
-	//read string of command from given client
-	string command = readString(client_sd);
-
-	//if a problem occurred - close socket and terminate thread
-	if(command == NULL) {
-		//close socket (if socket is already closed - does nothing)
-		close(client_sd);
-
-		//exit thread
-		pthread_exit(NULL); //TODO - return?
-	}
-
-	//split command by space
-	vector<string> args = split(command);
-
-	//make command the first word
-	command = args[0];
-	//remove command from arguments
-	args.erase(args.begin());
-
-	//add the client's file descriptor as the last arguments
-	args.insert(args.end(), toString(client_sd)); //add to arguments
-
-	//execute command
-	commandManager_.executeCommand(command, args);
-
-	//explanation - will either open a game in the game lists, and exit thread, or create new thread to play a game (via join)
+	//handle client
+	handler.handle();
 }
 
 
@@ -209,7 +183,7 @@ void Server::handleGame(GameInfo& g) {
 		string command = readString(g.getClientA(), g.getClientB());
 
 		//if a problem occurred - close socket and terminate thread (other client has already been notified of disconnection)
-		if(command == NULL) {
+		if(command == "") {
 			exitThread(g.getClientA(), g.getClientB());
 		}
 
@@ -323,11 +297,11 @@ string readString(int client_sd) {
 	int n = read(client_sd, &str, sizeof(str));
 	if (n == -1) {
 		cout << "Error reading string from socket" << endl;
-		return NULL;
+		return "";
 	}else if (n == 0) {
 		//if no bytes were read from client - client has disconnected, return NULL (an error occurred)
 		//closing clients will happen when returning with a error
-		return NULL;
+		return "";
 	}
 
 	//otherwise - all is well, return string read row
@@ -344,7 +318,7 @@ string Server::readString(int client1_sd, int client2_sd) {
 	int n = read(client1_sd, &str, sizeof(str));
 	if (n == -1) {
 		cout << "Error reading string from socket" << endl;
-		return NULL;
+		return "";
 	}else if (n == 0) {
 		//if no bytes were read from client - client1 has disconnected
 		//notify other client (client2) - write (-3) to opponent
@@ -362,7 +336,7 @@ string Server::readString(int client1_sd, int client2_sd) {
 
 		//closing clients will happen when returning with a error
 
-		return NULL;
+		return "";
 	}
 
 	//otherwise - all is well, return string read row
@@ -398,22 +372,4 @@ void Server::exitThread(int client1_sd, int client2_sd) {
 
 	//exit thread
 	pthread_exit(NULL); //TODO - return instead?
-}
-
-
-string Server::toString(int a) {
-	//declare stringstream
-	stringstream ss;
-	//add integer to stream
-	ss << a;
-	//make stream to string
-	string str = ss.str();
-	//return string
-	return str;
-}
-
-vector<string> Server::split(string& line) {
-	istringstream iss(line);
-	vector<string> args((istream_iterator<string>(iss)), istream_iterator<string>());
-	return args;
 }

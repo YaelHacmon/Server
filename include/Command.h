@@ -6,8 +6,6 @@
 #include "GamesInfoLists.h"
 #include "Server.h"
 
-class Server;
-
 /**
  * Represents a command from the client (sender, creator) to the server (receiver, invoker)
  */

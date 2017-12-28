@@ -1,8 +1,5 @@
-/*
- * ListGamesCommand.cpp
- *      Author: yael
- */
 #include "ListGamesCommand.h"
+#include <cstdlib> //for atoi()
 
 using namespace std;
 

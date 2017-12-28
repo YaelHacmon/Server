@@ -1,6 +1,6 @@
 #include "CloseCommand.h"
-#include <unistd.h>
-#include <cstdlib>
+#include <unistd.h> //for close()
+#include <cstdlib> //for atoi()
 
 using namespace std;
 

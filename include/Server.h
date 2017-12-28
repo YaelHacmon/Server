@@ -11,16 +11,15 @@
 #include <string>
 
 #include "GamesInfoLists.h"
-#include "CommandManager.h"
+#include "CommandsManager.h"
 
 using namespace std;
 
+/*
+ * This server handles connecting two clients to one
+ * another
+ */
 class Server {
-	/*
-	 * This server handles connecting two clients to one
-	 * another
-	 */
-
 public:
 	/*
 	 * Getting the port from file
@@ -49,13 +48,13 @@ public:
 
 	/**
 	 * Reads string from client.
-	 * @return string read if succeeded, NULL if not
+	 * @return string read if succeeded, an empty string if not
 	 */
 	string readString(int client_sd);
 
 	/**
 	 * Reads string from client1.
-	 * @return string read if succeeded, NULL if not
+	 * @return string read if succeeded, an empty string if not
 	 */
 	string readString(int client1_sd, int client2_sd);
 
@@ -64,6 +63,22 @@ public:
 	 * @return 1 if succeeded, 0 if not
 	 */
 	int writeString(string s, int client_sd);
+
+
+	/**
+	 * Getter for server socket, for use from static functions
+	 */
+	int getServerSocket();
+
+	/**
+	 * Getter for commands manager, for use from static functions
+	 */
+	vector<pthread_t> getThreadVector();
+
+	/**
+	 * Getter for commands manager, for use from static functions
+	 */
+	CommandsManager getCommandManager();
 
 private:
 	int port;
@@ -80,13 +95,17 @@ private:
 
 	/**
 	 * Endless loop for accepting clients in separate thread.
+	 * Function must be static to be passed to pthread_create()
+	 * @param s server to be used in accepting the clients
 	 */
-	void* acceptClients(void* null);
+	static void* acceptClients(void* s);
 
 	/**
 	 * Handles the initial communication with a client: asking to start\join a game and accepting answers
+	 * Function must be static to be passed to pthread_create()
+	 * @param cd client handler that can handle the given client
 	 */
-	void* handleSingleClient(void* sd);
+	static void* handleSingleClient(void* ch);
 
 	/**
 	 * Handles the full game between two clients.
@@ -97,16 +116,6 @@ private:
 	 * Beautifier method for closing both sockets and killing thread
 	 */
 	void exitThread(int client1_sd, int client2_sd);
-
-	/**
-	 * Helper function for cleaner code: converts integer to string
-	 */
-	string toString(int a);
-
-	/**
-	 * Helper function for splitting a command by space
-	 */
-	vector<string> split(string& line);
 };
 
 

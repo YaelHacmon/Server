@@ -52,9 +52,7 @@ GameInfo& GamesInfoLists::findGame(string& name) {
 	return nullGame_;
 }
 
-/**
- * Closes the given game (game given by name): searches for it in lists and removes from playing lists and closes descriptors.
- */
+
 void GamesInfoLists::removeGame(GameInfo& g) {
 	//find game's position in vector
 	vector<GameInfo>::iterator pos = find(games_.begin(), games_.end(), g);
@@ -82,9 +80,7 @@ void GamesInfoLists::removeGame(int client_sd) {
 	pthread_mutex_unlock(&vectorMutex_); //unlock
 }
 
-/**
- * Returns the list of games waiting for another player, separated with a space between them
- */
+
 string GamesInfoLists::listWaitingGames() {
 	string list = "";
 	for (vector<GameInfo>::const_iterator iter = games_.begin(); iter != games_.end(); iter++) {

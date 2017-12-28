@@ -1,12 +1,5 @@
-/*
- * StartGameCommand.cpp
- *
- *  Created on: Dec 24, 2017
- *      Author: yael
- */
-
 #include "../include/StartGameCommand.h"
-
+#include <cstdlib> //for atoi()
 
 using namespace std;
 
