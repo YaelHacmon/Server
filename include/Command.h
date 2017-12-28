@@ -3,7 +3,9 @@
 
 #include <vector>
 #include <string>
-#include "Server.h"
+#include "GamesInfoLists.h"
+
+class Server;
 
 /**
  * Represents a command from the client (sender, creator) to the server (receiver, invoker)

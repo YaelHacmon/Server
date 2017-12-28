@@ -15,6 +15,7 @@
 #include <string>
 
 #include "GamesInfoLists.h"
+#include "CommandManager.h"
 
 using namespace std;
 

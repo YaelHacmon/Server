@@ -7,7 +7,6 @@
 #define GAMEINFO_H_
 
 #include <string>
-#include <pthread.h>
 
 class GameInfo {
 public:

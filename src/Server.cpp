@@ -24,10 +24,6 @@
 
 using namespace std;
 
-
-//declare CommandManager as class, to avoid loop of headers TODO - right way to do this?
-class CommandsManager;
-
 //vector will be initialized via default c'tor
 Server::Server(string fileName): serverSocket(0), gameList_(), commandManager_(this, gameList_)  {
 	ifstream config;

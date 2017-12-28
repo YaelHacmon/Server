@@ -1,5 +1,11 @@
 #include "../include/CommandManager.h"
 #include "../include/PlayCommand.h"
+#include "../include/StartGameCommand.h"
+#include "../include/ListGamesCommand.h"
+#include "../include/JoinCommand.h"
+#include "../include/CloseCommand.h"
+#include "../include/Server.h"
+#include "../include/GamesInfoLists.h"
 
 using namespace std;
 
@@ -13,14 +19,11 @@ CommandsManager::CommandsManager(Server& s, GamesInfoLists& list) {
 	commandsMap["close"] = new CloseCommand(s, list);
 }
 
-}
-
 CommandsManager::~CommandsManager() {
-	delete commandsMap["start"];
-	delete commandsMap["list_games"];
-	delete commandsMap["join"];
-	delete commandsMap["play"];
-	delete commandsMap["close"];
+	//delete all commands
+	for (map<string, Command *>::iterator it = commandsMap.begin(); it != commandsMap.end(); it++) {
+		delete it->second;
+	}
 }
 
 void CommandsManager::executeCommand(string command, vector<string> args) {

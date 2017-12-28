@@ -2,8 +2,12 @@
 #define COMMANDMANAGER_H_
 
 #include "Command.h"
-#include "Server.h"
+#include "GamesInfoLists.h"
 #include <map>
+
+//declare server as class to avoid header include loop
+class Server;
+
 using namespace std;
 
 class CommandsManager {
