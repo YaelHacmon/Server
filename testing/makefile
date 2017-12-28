@@ -3,8 +3,8 @@ SRC = ../src/
 CCFLAGS = -c -pthread -I $(INCLUDE)
 
 #create executalbe file by linking the object files
-a.out: Server.o main.o
-	g++ -pthread Server.o main.o
+a.out: GameInfo.o GamesInfoLists.o CloseCommand.o JoinCommand.o ListGamesCommand.o PlayCommand.o StartGameCommand.o CommandManager.o Server.o main.o
+	g++ -pthread GameInfo.o GamesInfoLists.o CloseCommand.o JoinCommand.o ListGamesCommand.o PlayCommand.o StartGameCommand.o CommandManager.o Server.o main.o
 
 #creating all object files from source code
 GameInfo.o: $(SRC)GameInfo.cpp $(INCLUDE)GameInfo.h
