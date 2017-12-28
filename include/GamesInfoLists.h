@@ -30,7 +30,7 @@ public:
 	 * Helper method for closing a game in case of an error in playMove().
 	 * String can be returned by reference as it is not created inside method.
 	 *
-	 * In case of game not found - NULL is returned
+	 * In case of game not found - a null game (clientA=-2, name=empty string) is returned
 	 */
 	GameInfo& findGame(int client_sd);
 
@@ -38,14 +38,14 @@ public:
 	 * Finds and returns the GameInfo of the game with the given name.
 	 * GameInfo can be returned by reference as it is not created inside method.
 	 *
-	 * In case of game not found - null is returned
+	 * In case of game not found - a null game (clientA=-2, name=empty string) is returned
 	 */
 	GameInfo& findGame(string& name);
 
 	/**
 	 * Removes the given game (game given by name): searches for it in lists and removes from playing lists
 	 */
-	void removeGame(GameInfo& g); //TODO
+	void removeGame(GameInfo& g);
 
 	/**
 	 * Removes the game played by given client: searches for it in lists and removes from playing lists
@@ -58,9 +58,6 @@ public:
 	 */
 	string listWaitingGames();
 
-	//TODO?
-	bool sendMessageToClient(int client, string& msg);
-
 	/**
 	 * Starts a new waiting game in list, with the given name and client's socket descriptor. Given sd is of first (black) player.
 	 * @return 0 if succeeded, 1 if a game with the given name exists already.
@@ -70,7 +67,8 @@ public:
 	/**
 	 * Joins given player (by sd) to a given existing game (by name).
 	 * Checks that game exists and can be joined.
-	 * Returns the updated GameInfo, or NULL if either no such game exists or game is being played
+	 * @return the updated GameInfo, or a null game (clientA=-2, name=empty string)
+	 * if either no such game exists or given game is already being played
 	 */
 	GameInfo joinGame(string name, int clientB);
 
@@ -84,8 +82,11 @@ private:
 	//list of the games waiting to be played or being played
 	std::vector<GameInfo> games_;
 
-	//TODO - needed?
+	//mutex for locking in code acting on vector
 	pthread_mutex_t vectorMutex_;
+
+	//null game - to avoid recreating each time
+	GameInfo nullGame_;
 
 	/**
 	 * Finds and returns the iterator of the game with the given client.

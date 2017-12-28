@@ -55,9 +55,15 @@ public:
 	void swapClients();
 
 	/**
-	 * Overloading of == for using "find()" method from <algorithm>
+	 * Overloading of == for checking if two games are equal
 	 */
 	bool operator ==(const GameInfo &g) const;
+
+	/**
+	 * Overloading of != for checking if two games are not equal
+	 */
+	bool operator !=(const GameInfo &g) const;
+
 
 private:
 	std::string gameName_;

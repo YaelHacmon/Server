@@ -1,15 +1,10 @@
 #include "../include/GamesInfoLists.h"
 
-//for find()
-#include <algorithm>
-
 //games_ will be initialized via default c'tor
-GamesInfoLists::GamesInfoLists() {}
+GamesInfoLists::GamesInfoLists(): nullGame_("", -2) {}
 
 GamesInfoLists::~GamesInfoLists() {
-	for (vector<GameInfo>::const_iterator iter = games_.begin(); iter != games_.end(); iter++) {
-		delete *iter;
-	}
+	//vector will release elements
 }
 
 
@@ -23,8 +18,8 @@ GameInfo& GamesInfoLists::findGame(int client_sd) {
 		}
 	}
 
-	//else - return NULL
-	return NULL;
+	//else - return null game
+	return nullGame_;
 }
 
 
@@ -52,8 +47,8 @@ GameInfo& GamesInfoLists::findGame(string& name) {
 		}
 	}
 
-	//else - return null
-	return NULL;
+	//else - return null game
+	return nullGame_;
 }
 
 /**
@@ -111,7 +106,7 @@ int GamesInfoLists::startNewGame(string name, int clientA) {
 	GameInfo g = findGame(name);
 
 	//if game is not null - a game with the given name exists, return 1
-	if (g != NULL) {
+	if (g != nullGame_) {
 		return 1;
 	}
 
@@ -133,13 +128,13 @@ GameInfo GamesInfoLists::joinGame(string name, int clientB) {
 	//find game
 	GameInfo g = findGame(name);
 	//if game is not null and is waiting - join it
-	if (g != NULL && g.isWaiting()) {
+	if (g != nullGame_ && g.isWaiting()) {
 		g.play(clientB);
 		return g;
 	}
 
-	//else - game does not exist or is being played - return null
-	return NULL;
+	//else - game does not exist or is being played - return null game
+	return nullGame_;
 }
 
 

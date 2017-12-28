@@ -6,7 +6,6 @@
  */
 #include "GameInfo.h"
 
-//TODO
 GameInfo::GameInfo(std::string name, int clientA_): clientA_(clientA_), gameName_(name), clientB_(-1),
 status_(GameInfo::Waiting), interrupt(false) {};
 
@@ -42,7 +41,7 @@ void GameInfo::setInterrupt(bool interrupt) {
 
 
 bool GameInfo::isWaiting() const {
-	return status_ == MatchStatus::Waiting;
+	return status_ == GameInfo::Waiting;
 }
 
 
@@ -50,7 +49,7 @@ void GameInfo::play(int clientB) {
 	//update the second client
 	setClientB(clientB);
 	//update the status
-	setStatus(MatchStatus::Playing);
+	setStatus(GameInfo::Playing);
 }
 
 
@@ -67,4 +66,9 @@ void GameInfo::swapClients() {
 bool GameInfo::operator ==(const GameInfo &g) const {
 	//two games are equal if they have the same name
 	return (g.gameName_==gameName_);
+}
+
+bool GameInfo::operator !=(const GameInfo &g) const {
+	//two games are not equal if they have a different name
+	return (g.gameName_!=gameName_);
 }

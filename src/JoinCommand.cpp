@@ -20,8 +20,8 @@ void JoinCommand::execute(vector<string> args) {
 	//join game
 	GameInfo g = list_.joinGame(name, clientB);
 
-	//if returned GameInfo is not NULL - ask server to communicate given game
-	if (g != NULL) {
+	//if returned GameInfo is not the null game (clientA=-2, name=empty string) - ask server to communicate given game
+	if (g != GameInfo("", -2)) {
 		server_.handleGame(g);
 	}
 

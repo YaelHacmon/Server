@@ -11,7 +11,7 @@ GameInfo.o: $(SRC)GameInfo.cpp $(INCLUDE)GameInfo.h
 	g++ $(CCFLAGS) $(SRC)GameInfo.cpp
 	
 GamesInfoLists.o: $(SRC)GamesInfoLists.cpp $(INCLUDE)GamesInfoLists.h $(INCLUDE)GameInfo.h
-	g++ $(CCFLAGS) $(SRC)GameInfo.cpp
+	g++ $(CCFLAGS) $(SRC)GamesInfoLists.cpp
 
 CloseCommand.o: $(SRC)CloseCommand.cpp $(INCLUDE)CloseCommand.h $(INCLUDE)Command.h
 	g++ $(CCFLAGS) $(SRC)CloseCommand.cpp
