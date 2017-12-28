@@ -54,6 +54,7 @@ public:
 
 	/**
 	 * Returns the list of games waiting for another player, separated with a space between them
+	 * If non exist - an empty string is returned
 	 */
 	string listWaitingGames();
 

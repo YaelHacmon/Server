@@ -247,7 +247,7 @@ int Server::readNum(int client1_sd, int client2_sd) {
 	//read number sent
 	int n = read(client1_sd, &num, sizeof(num));
 	if (n == -1) {
-		cout << "Error reading row from socket" << endl;
+		cout << "Error reading number from socket" << endl;
 		return -1;
 	}else if (n == 0) {
 		//if no bytes were read from client - client1 has disconnected
@@ -257,7 +257,7 @@ int Server::readNum(int client1_sd, int client2_sd) {
 
 		//check that writing succeeded (do not use writeNum to avoid infinite loop)
 		if (n == -1) {
-			cout << "Error writing row to socket" << endl;
+			cout << "Error writing number to socket" << endl;
 		}
 
 		//closing clients will happen when returning with a error
@@ -274,7 +274,7 @@ int Server::writeNum(int num, int client1_sd, int client2_sd) {
 	//write number to opponent
 	int n = write(client2_sd, &num, sizeof(num));
 	if (n == -1) {
-		cout << "Error writing row to socket" << endl;
+		cout << "Error writing number to socket" << endl;
 		return 0;
 
 	} else if (n == 0) {
@@ -285,7 +285,7 @@ int Server::writeNum(int num, int client1_sd, int client2_sd) {
 
 		//check that writing succeeded (do not use writeNum to avoid infinite loop)
 		if (n == -1) {
-			cout << "Error writing row to socket" << endl;
+			cout << "Error writing number to socket" << endl;
 		}
 
 		//closing clients will happen when returning with a error
@@ -302,7 +302,7 @@ int Server::writeNum(int num, int client_sd) {
 	//write number to client
 	int n = write(client_sd, &num, sizeof(num));
 	if (n == -1) {
-		cout << "Error writing row to socket" << endl;
+		cout << "Error writing number to socket" << endl;
 		return 0;
 
 	} else if (n == 0) {
@@ -324,9 +324,9 @@ string readString(int client_sd) {
 	str.resize(MAX_COMMAND_LENGTH);
 
 	//read string sent
-	int n = read(client_sd, &str, MAX_COMMAND_LENGTH);
+	int n = read(client_sd, &str, sizeof(str));
 	if (n == -1) {
-		cout << "Error reading row from socket" << endl;
+		cout << "Error reading string from socket" << endl;
 		return NULL;
 	}else if (n == 0) {
 		//if no bytes were read from client - client has disconnected, return NULL (an error occurred)
@@ -345,9 +345,9 @@ string Server::readString(int client1_sd, int client2_sd) {
 	str.resize(MAX_COMMAND_LENGTH);
 
 	//read string sent
-	int n = read(client1_sd, &str, MAX_COMMAND_LENGTH);
+	int n = read(client1_sd, &str, sizeof(str));
 	if (n == -1) {
-		cout << "Error reading row from socket" << endl;
+		cout << "Error reading string from socket" << endl;
 		return NULL;
 	}else if (n == 0) {
 		//if no bytes were read from client - client1 has disconnected
@@ -361,7 +361,7 @@ string Server::readString(int client1_sd, int client2_sd) {
 
 		//check that writing succeeded (do not use writeNum to avoid infinite loop)
 		if (n == -1) {
-			cout << "Error writing row to socket" << endl;
+			cout << "Error writing string to socket" << endl;
 		}
 
 		//closing clients will happen when returning with a error
@@ -379,9 +379,9 @@ int Server::writeString(string s, int client_sd) {
 	s.resize(MAX_STRING_LENGTH);
 
 	//write number to opponent
-	int n = write(client_sd, &s, MAX_STRING_LENGTH);
+	int n = write(client_sd, &s, sizeof(s));
 	if (n == -1) {
-		cout << "Error writing row to socket" << endl;
+		cout << "Error writing string to socket" << endl;
 		return 0;
 
 	}else if (n == 0) {
