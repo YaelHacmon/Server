@@ -1,13 +1,7 @@
-/*
- * StartGameCommand.h
- *      Author: yael
- */
-
 #ifndef STARTGAMECOMMAND_H_
 #define STARTGAMECOMMAND_H_
 
 #include "Command.h"
-#include "Utilities.h"
 
 #include <vector>
 #include <string>

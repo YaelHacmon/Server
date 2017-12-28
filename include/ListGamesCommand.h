@@ -1,13 +1,7 @@
-/*
- * ListGamesCommand.h
- *      Author: yael
- */
-
 #ifndef LISTGAMESCOMMAND_H_
 #define LISTGAMESCOMMAND_H_
 
 #include "Command.h"
-#include "Utilities.h"
 
 #include <vector>
 #include <string>

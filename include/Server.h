@@ -1,7 +1,3 @@
-/*
- * Server.h
- */
-
 #ifndef SERVER_H_
 #define SERVER_H_
 

@@ -1,14 +1,7 @@
-/*
- * JoinCommand.h
- *      Author: yael
- */
-
-
 #ifndef JOINCOMMAND_H_
 #define JOINCOMMAND_H_
 
 #include "Command.h"
-#include "Utilities.h"
 
 #include <vector>
 #include <string>
