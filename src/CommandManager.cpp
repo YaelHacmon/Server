@@ -10,7 +10,6 @@
 using namespace std;
 
 //c'tor - new commands should be added here
-//TODO - see if objects can be on stack... probably not, due to scope or something
 CommandsManager::CommandsManager(Server& s, GamesInfoLists& list) {
 	commandsMap["play"] = new PlayCommand(s, list);
 	commandsMap["start"] = new StartGameCommand(s, list);

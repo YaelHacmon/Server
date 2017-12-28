@@ -1,21 +1,20 @@
 #ifndef COMMANDMANAGER_H_
 #define COMMANDMANAGER_H_
 
-#include "Command.h"
 #include "GamesInfoLists.h"
 #include <map>
-
-//declare server as class to avoid header include loop
-class Server;
-
-using namespace std;
+#include "Server.h"
+#include "Command.h"
 
 class CommandsManager {
 public:
 	/**
-	 * Default c'tor, creates map with Commands. Accepts server for commands to act on
+	 * Default c'tor, creates map with Commands.
+	 * @param s server for commands to act on
+	 * @param list of games to act on
+	 * declare server as class to avoid header include loop
 	 */
-	CommandsManager(Server& s, GamesInfoLists& list);
+	CommandsManager(class Server& s, GamesInfoLists& list);
 
 	/**
 	 * Destructor to release map
@@ -29,7 +28,7 @@ public:
 
 private:
 	//map of commands, where the key is a string (and value is the Command, of course)
-	map<string, Command*> commandsMap;
+	std::map<std::string, Command*> commandsMap;
 
 };
 

@@ -28,7 +28,7 @@ PlayCommand.o: $(SRC)PlayCommand.cpp $(INCLUDE)PlayCommand.h $(INCLUDE)Command.h
 StartGameCommand.o: $(SRC)StartGameCommand.cpp $(INCLUDE)StartGameCommand.h $(INCLUDE)Command.h
 	g++ $(CCFLAGS) $(SRC)StartGameCommand.cpp
 
-CommandManager.o: $(SRC)CommandManager.cpp $(INCLUDE)CommandManager.h $(INCLUDE)Command.h
+CommandManager.o: $(SRC)CommandManager.cpp $(INCLUDE)CommandManager.h $(INCLUDE)Command.h $(INCLUDE)Server.h
 	g++ $(CCFLAGS) $(SRC)CommandManager.cpp
 
 Server.o: $(SRC)Server.cpp $(INCLUDE)Server.h
