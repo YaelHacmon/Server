@@ -1,16 +1,17 @@
 #include "../include/GamesInfoLists.h"
 
-//games_ will be initialized via default c'tor
+#include <algorithm>
+
+//games_ vector will be initialized via default c'tor
 GamesInfoLists::GamesInfoLists(): nullGame_("", -2) {}
 
-GamesInfoLists::~GamesInfoLists() {
-	//vector will release elements
-}
+//vector will release elements
+GamesInfoLists::~GamesInfoLists() {}
 
 
 GameInfo& GamesInfoLists::findGame(int client_sd) {
 	//search played games
-	for (vector<GameInfo>::const_iterator iter = games_.begin(); iter != games_.end(); iter++) {
+	for (vector<GameInfo>::iterator iter = games_.begin(); iter != games_.end(); iter++) {
 		//if given client is one of the playing clients
 		if (iter->getClientA() == client_sd || iter->getClientB() == client_sd) {
 			//return game name
@@ -39,7 +40,7 @@ vector<GameInfo>::iterator GamesInfoLists::findGamePosition(int client_sd) {
 
 GameInfo& GamesInfoLists::findGame(string& name) {
 	//search played games
-	for (vector<GameInfo>::const_iterator iter = games_.begin(); iter != games_.end(); iter++) {
+	for (vector<GameInfo>::iterator iter = games_.begin(); iter != games_.end(); iter++) {
 		//if we found the given game
 		if (iter->getGameName() == name) {
 			//return game info
@@ -61,28 +62,24 @@ void GamesInfoLists::removeGame(GameInfo& g) {
 	//lock - this is a common resource, we must protect
 	pthread_mutex_lock(&vectorMutex_);
 
-	//delete GameInfo
-	delete *pos; //TODO - inside lock? will work?
-	//remove game
+	//remove GameInfo
 	games_.erase(pos);
 
-	pthread_mutex_unlock(&vectorMutex_);
+	pthread_mutex_unlock(&vectorMutex_); //unlock
 }
 
 
 void GamesInfoLists::removeGame(int client_sd) {
 	//find game's position in vector
-	vector<GameInfo>::iterator pos = findGame(client_sd);
+	vector<GameInfo>::iterator pos = findGamePosition(client_sd);
 
 	//lock - this is a common resource, we must protect
 	pthread_mutex_lock(&vectorMutex_);
 
-	//delete GameInfo
-	delete *pos; //TODO - inside lock? will work?
-	//remove game
+	//remove GameInfo
 	games_.erase(pos);
 
-	pthread_mutex_unlock(&vectorMutex_);
+	pthread_mutex_unlock(&vectorMutex_); //unlock
 }
 
 /**
@@ -110,13 +107,13 @@ int GamesInfoLists::startNewGame(string name, int clientA) {
 		return 1;
 	}
 
-	//else - create new game
-	GameInfo g = new GameInfo(name, clientA);
 
 	//lock - this is a common resource, we must protect
 	pthread_mutex_lock(&vectorMutex_);
-	//add game to list
-	games_.push_back(g);
+
+	//else - create new game and add game to list
+	games_.push_back(GameInfo(name, clientA));
+
 	pthread_mutex_unlock(&vectorMutex_);
 
 	//method ended successfully - return 0
