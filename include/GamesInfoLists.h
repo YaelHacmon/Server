@@ -62,8 +62,9 @@ public:
 
 	/**
 	 * Starts a new waiting game in list, with the given name and client's socket descriptor. Given sd is of first (black) player.
+	 * @return 0 if succeeded, 1 if a game with the given name exists already.
 	 */
-	void startNewGame(string name, int clientA);
+	int startNewGame(string name, int clientA);
 
 	/**
 	 * Joins given player (by sd) to a given existing game (by name).

@@ -106,8 +106,16 @@ string GamesInfoLists::listWaitingGames() {
 }
 
 
-void GamesInfoLists::startNewGame(string name, int clientA) {
-	//create new game
+int GamesInfoLists::startNewGame(string name, int clientA) {
+	//check if a game with the given name exists
+	GameInfo g = findGame(name);
+
+	//if game is not null - a game with the given name exists, return 1
+	if (g != NULL) {
+		return 1;
+	}
+
+	//else - create new game
 	GameInfo g = new GameInfo(name, clientA);
 
 	//lock - this is a common resource, we must protect
@@ -115,6 +123,9 @@ void GamesInfoLists::startNewGame(string name, int clientA) {
 	//add game to list
 	games_.push_back(g);
 	pthread_mutex_unlock(&vectorMutex_);
+
+	//method ended successfully - return 0
+	return 0;
 }
 
 

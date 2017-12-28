@@ -298,6 +298,25 @@ int Server::writeNum(int num, int client1_sd, int client2_sd) {
 }
 
 
+int Server::writeNum(int num, int client_sd) {
+	//write number to client
+	int n = write(client_sd, &num, sizeof(num));
+	if (n == -1) {
+		cout << "Error writing row to socket" << endl;
+		return 0;
+
+	} else if (n == 0) {
+		//if no bytes were written to client - client has disconnected
+		//closing clients will happen when returning with a error
+
+		return 0;
+	}
+
+	//all went well - return 1
+	return 1;
+}
+
+
 string readString(int client_sd) {
 	string str;
 	//TODO - is it right to resize each time

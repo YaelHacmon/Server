@@ -45,6 +45,12 @@ public:
 	int writeNum(int num, int client1_sd, int client2_sd);
 
 	/**
+	 * Writes integer to client.
+	 * @return 1 if succeeded, 0 if not
+	 */
+	int writeNum(int num, int client_sd);
+
+	/**
 	 * Reads string from client.
 	 * @return string read if succeeded, NULL if not
 	 */
