@@ -23,7 +23,7 @@
 using namespace std;
 
 //vector will be initialized via default c'tor
-Server::Server(string& fileName, ClientHandler& ch): serverSocket(0), gameList_(), commandManager_(this, gameList_)  {
+Server::Server(string& fileName, ClientHandler& ch): serverSocket(0),  handler_(ch) {
 	ifstream config;
 	config.open(fileName.c_str(), std::fstream::in);
 
@@ -147,15 +147,6 @@ void* Server::acceptClients(void* s) {
 
 		//keep on accepting
 	}
-}
-
-
-void* Server::handleSingleClient(void* ch) {
-	//cast to client handler
-	ClientHandler handler = (ClientHandler) ch;
-
-	//handle client
-	handler.handle();
 }
 
 

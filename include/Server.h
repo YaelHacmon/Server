@@ -89,19 +89,15 @@ private:
 	//vector of threads
 	vector<pthread_t> threads_;
 
+	//handler of clients
+	ClientHandler handler_;
+
 	/**
 	 * Endless loop for accepting clients in separate thread.
 	 * Function must be static to be passed to pthread_create()
 	 * @param s server to be used in accepting the clients
 	 */
 	static void* acceptClients(void* s);
-
-	/**
-	 * Handles the initial communication with a client: asking to start\join a game and accepting answers
-	 * Function must be static to be passed to pthread_create()
-	 * @param cd client handler that can handle the given client
-	 */
-	static void* handleSingleClient(void* ch);
 
 	/**
 	 * Handles the full game between two clients.

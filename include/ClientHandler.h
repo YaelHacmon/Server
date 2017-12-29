@@ -9,16 +9,16 @@ class ClientHandler {
 public:
 	/**
 	 * C'tor of handler.
-	 * @param s server through which handling is done
-	 * @param client_sd socket descriptor of client to handle
 	 */
-	ClientHandler(Server& s);
+	ClientHandler();
 
 	/**
-	 * Handles the g client of this handler, using the given server.
+	 * Handles the initial communication with a client: asking to start\join a game and accepting answers
+	 * Function must be static to be passed to pthread_create()
+	 *
 	 * @param client_sd socket descriptor of client
 	 */
-	static void handle(int client_sd);
+	static void* handle(void* client_sd);
 
 private:
 	//server to use in handling client
