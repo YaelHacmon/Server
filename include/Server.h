@@ -22,9 +22,11 @@ using namespace std;
 class Server {
 public:
 	/*
-	 * Getting the port from file
+	 * C'tor with filename for port number and client handler to handle client
+	 * @param fileName name of file with port number
+	 * @param ch client handler to handle accepted clients
 	 */
-	Server(string fileName);
+	Server(string& fileName, ClientHandler& ch);
 
 	void start();
 
@@ -86,12 +88,6 @@ private:
 
 	//vector of threads
 	vector<pthread_t> threads_;
-
-	//manager of commands
-	CommandsManager commandManager_;
-
-	//handles the lists of existing games and their information
-	GamesInfoLists gameList_;
 
 	/**
 	 * Endless loop for accepting clients in separate thread.

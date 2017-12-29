@@ -23,7 +23,7 @@
 using namespace std;
 
 //vector will be initialized via default c'tor
-Server::Server(string fileName): serverSocket(0), gameList_(), commandManager_(this, gameList_)  {
+Server::Server(string& fileName, ClientHandler& ch): serverSocket(0), gameList_(), commandManager_(this, gameList_)  {
 	ifstream config;
 	config.open(fileName.c_str(), std::fstream::in);
 
