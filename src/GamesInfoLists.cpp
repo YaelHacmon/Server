@@ -19,7 +19,7 @@ GamesInfoLists::GamesInfoLists(): nullGame_("", -2) {}
 //vector will release elements, no memory to free in real instance
 GamesInfoLists::~GamesInfoLists() {}
 
-static void GamesInfoLists::resetInstance() {
+void GamesInfoLists::resetInstance() {
 	delete instance_; // REM : it works even if the pointer is NULL (does nothing then)
 	instance_ = NULL; // so GetInstance will still work.
 }
@@ -159,4 +159,6 @@ vector<int> GamesInfoLists::getAllOpenSockets() {
 			sockets.push_back(iter->getClientB());
 		}
 	}
+
+	return sockets;
 }

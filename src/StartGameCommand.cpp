@@ -1,4 +1,6 @@
 #include "../include/StartGameCommand.h"
+#include "../include/GamesInfoLists.h"
+#include "../include/CommunicationManager.h"
 #include <cstdlib> //for atoi()
 
 using namespace std;
@@ -14,9 +16,9 @@ void StartGameCommand::execute(vector<string> args) {
 	//if starting a new game was not successful
 	if (GamesInfoLists::getInstance()->startNewGame(name, clientA)) {
 		//try to write -1 (error code) to client - notify client that initialization is impossible
-		server_.writeNum(-1, clientA); //returned value does not matter to us (if client disconnected - his problem :) )
+		CommunicationManager::getInstance()->writeNum(-1, clientA); //returned value does not matter to us (if client disconnected - his problem :) )
 
-	} else if (!server_.writeNum(0, clientA)) {
+	} else if (!CommunicationManager::getInstance()->writeNum(0, clientA)) {
 		//otherwise - send 0 to client, to show initialization worked
 		//if writing failed, client disconnected - remove the game just created
 		GamesInfoLists::getInstance()->removeGame(clientA);

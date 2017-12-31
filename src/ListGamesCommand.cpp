@@ -1,4 +1,7 @@
-#include "ListGamesCommand.h"
+#include "../include/ListGamesCommand.h"
+#include "../include/GamesInfoLists.h"
+#include "../include/CommunicationManager.h"
+#include <unistd.h> //for close()
 #include <cstdlib> //for atoi()
 
 using namespace std;
@@ -14,7 +17,7 @@ void ListGamesCommand::execute(vector<string> args) {
 
 	//send list via server
 	//if problem occured - close client (exiting is done right after, anyway)
-	if (!server_.writeString(list, client)) {
+	if (!CommunicationManager::getInstance()->writeString(list, client)) {
 		close(client);
 	}
 

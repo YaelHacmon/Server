@@ -82,7 +82,7 @@ public:
 	vector<int> getAllOpenSockets();
 
 private:
-	GamesInfoLists() {}; // Private c'tor
+	GamesInfoLists(); // Private c'tor
 	GamesInfoLists(const GamesInfoLists &other); // Private copy c'tor
 
 	//static class member

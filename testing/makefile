@@ -1,10 +1,10 @@
 INCLUDE = ../include/
 SRC = ../src/
-CCFLAGS = -c -pthread -I $(INCLUDE)
+CCFLAGS = -Wall -c -pthread -I $(INCLUDE)
 
 #create executalbe file by linking the object files
-a.out: GameInfo.o GamesInfoLists.o CloseCommand.o JoinCommand.o ListGamesCommand.o PlayCommand.o StartGameCommand.o CommandManager.o Server.o main.o
-	g++ -pthread GameInfo.o GamesInfoLists.o CloseCommand.o JoinCommand.o ListGamesCommand.o PlayCommand.o StartGameCommand.o CommandManager.o Server.o main.o
+a.out: GameInfo.o GamesInfoLists.o CommunicationManager.o Server.o CloseCommand.o JoinCommand.o ListGamesCommand.o PlayCommand.o StartGameCommand.o CommandsManager.o ClientHandler.o main.o
+	g++ -pthread -Wall GameInfo.o GamesInfoLists.o CommunicationManager.o Server.o CloseCommand.o JoinCommand.o ListGamesCommand.o PlayCommand.o StartGameCommand.o CommandsManager.o ClientHandler.o main.o
 
 #creating all object files from source code
 GameInfo.o: $(SRC)GameInfo.cpp $(INCLUDE)GameInfo.h
@@ -34,10 +34,10 @@ PlayCommand.o: $(SRC)PlayCommand.cpp $(INCLUDE)PlayCommand.h $(INCLUDE)Command.h
 StartGameCommand.o: $(SRC)StartGameCommand.cpp $(INCLUDE)StartGameCommand.h $(INCLUDE)Command.h
 	g++ $(CCFLAGS) $(SRC)StartGameCommand.cpp
 
-CommandManager.o: $(SRC)CommandManager.cpp $(INCLUDE)CommandManager.h $(INCLUDE)Command.h $(INCLUDE)Server.h
-	g++ $(CCFLAGS) $(SRC)CommandManager.cpp
+CommandsManager.o: $(SRC)CommandsManager.cpp $(INCLUDE)CommandsManager.h $(INCLUDE)Command.h $(INCLUDE)Server.h
+	g++ $(CCFLAGS) $(SRC)CommandsManager.cpp
 	
-ClientHandler.o: $(SRC)ClientHandler.cpp $(INCLUDE)ClientHandler.h $(INCLUDE)CommandManager.h
+ClientHandler.o: $(SRC)ClientHandler.cpp $(INCLUDE)ClientHandler.h $(INCLUDE)CommandsManager.h
 	g++ $(CCFLAGS) $(SRC)ClientHandler.cpp
 	
 main.o: $(SRC)main.cpp $(INCLUDE)Server.h

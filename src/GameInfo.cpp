@@ -6,7 +6,7 @@
  */
 #include "GameInfo.h"
 
-GameInfo::GameInfo(std::string name, int clientA_): clientA_(clientA_), gameName_(name), clientB_(-1),
+GameInfo::GameInfo(std::string name, int clientA_): gameName_(name), clientA_(clientA_), clientB_(-1),
 status_(GameInfo::Waiting), interrupt(false) {};
 
 int GameInfo::getClientA() const {

@@ -10,9 +10,6 @@
 #include <vector>
 #include <string>
 
-#include "GamesInfoLists.h"
-#include "CommandsManager.h"
-
 using namespace std;
 
 /*
@@ -25,7 +22,7 @@ public:
 	 * C'tor with filename for port number and client handler to handle client
 	 * @param fileName name of file with port number
 	 */
-	Server(string& fileName);
+	Server(const string& fileName);
 
 	void start();
 
@@ -63,7 +60,7 @@ public:
 	 * Writes string to client.
 	 * @return 1 if succeeded, 0 if not
 	 */
-	int writeString(string s, int client_sd);
+	int writeString(string& s, int client_sd);
 
 
 	/**
@@ -74,7 +71,7 @@ public:
 	/**
 	 * Getter for commands manager, for use from static functions
 	 */
-	vector<pthread_t> getThreadVector();
+	vector<pthread_t>& getThreadVector();
 
 	/**
 	 * Beautifier method for closing both sockets and killing thread
@@ -91,16 +88,16 @@ private:
 	/**
 	 * Endless loop for accepting clients in separate thread.
 	 * Function must be static to be passed to pthread_create()
-	 * @param s server to be used in accepting the clients
+	 * @param null - no parameters needed
 	 */
-	static void* acceptClients(void* s);
+	static void* acceptClients(void* null);
 
 	/**
 	 * Handles the initial communication with a client: asking to start\join a game and accepting answers
 	 * Function must be static to be passed to pthread_create()
 	 * @param cd client handler that can handle the given client
 	 */
-	static void* handleSingleClient(void* ch);
+	static void* handleSingleClient(void* sd);
 };
 
 

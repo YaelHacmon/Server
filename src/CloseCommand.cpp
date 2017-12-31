@@ -1,4 +1,5 @@
-#include "CloseCommand.h"
+#include "../include/CloseCommand.h"
+#include "../include/GamesInfoLists.h"
 #include <unistd.h> //for close()
 #include <cstdlib> //for atoi()
 

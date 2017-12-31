@@ -1,5 +1,6 @@
 #include "../include/Server.h"
-#include "Cl"
+#include "../include/GamesInfoLists.h"
+#include "../include/CommunicationManager.h"
 
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -23,7 +24,7 @@
 using namespace std;
 
 //vector will be initialized via default c'tor
-Server::Server(string& fileName): serverSocket(0) {
+Server::Server(const string& fileName): serverSocket(0) {
 	ifstream config;
 	config.open(fileName.c_str(), std::fstream::in);
 
@@ -112,9 +113,7 @@ void Server::start(){
 
 }
 
-void* Server::acceptClients(void* s) {
-	Server server = (Server) s;
-
+void* Server::acceptClients(void* null) {
 	//declare clients' address
 	struct sockaddr_in clientAddress;
 	socklen_t clientAddressLen;
@@ -125,7 +124,7 @@ void* Server::acceptClients(void* s) {
 
 	while (true) {
 		//Accepting client
-		client_sd = accept(server.getServerSocket(), (struct sockaddr* )&clientAddress, &clientAddressLen);
+		client_sd = accept(CommunicationManager::getInstance()->getServer().getServerSocket(), (struct sockaddr* )&clientAddress, &clientAddressLen);
 
 		if (client_sd == -1){
 			throw "Error on accept";
@@ -135,14 +134,14 @@ void* Server::acceptClients(void* s) {
 		//create identifier
 		pthread_t tid;
 
-		int rc = pthread_create(&tid, NULL, Server::handleSingleClient, (void *)client_sd);
+		int rc = pthread_create(&tid, NULL, Server::handleSingleClient, (void *)&client_sd);
 		if (rc) {
 			cout << "Error: unable to create thread, " << rc << endl;
 			pthread_exit(NULL);
 		}
 
 		//push identifier into vector
-		server.getThreadVector().push_back(tid);
+		CommunicationManager::getInstance()->getServer().getThreadVector().push_back(tid);
 
 		//keep on accepting
 	}
@@ -156,6 +155,16 @@ void* Server::handleSingleClient(void* sd) {
 
 	//handle client
 	CommunicationManager::getInstance()->handleClient(client_sd);
+
+	return NULL;
+}
+
+int Server::getServerSocket() {
+	return 0;
+}
+
+vector<pthread_t>& Server::getThreadVector() {
+	return threads_;
 }
 
 int Server::readNum(int client1_sd, int client2_sd) {
@@ -233,7 +242,7 @@ int Server::writeNum(int num, int client_sd) {
 }
 
 
-string readString(int client_sd) {
+string Server::readString(int client_sd) {
 	string str;
 	//resize to standard read string size
 	str.resize(MAX_COMMAND_LENGTH);
@@ -286,7 +295,7 @@ string Server::readString(int client1_sd, int client2_sd) {
 	return str;
 }
 
-int Server::writeString(string s, int client_sd) {
+int Server::writeString(string& s, int client_sd) {
 	//resize to standard sent string size
 	s.resize(MAX_STRING_LENGTH);
 

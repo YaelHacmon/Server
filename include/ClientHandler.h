@@ -1,9 +1,11 @@
 #ifndef CLIENTHANDLER_H_
 #define CLIENTHANDLER_H_
 
-#include "CommandsManager.h""
+#include "CommandsManager.h"
 #include <vector>
 #include <string>
+#include <sstream>
+#include <iterator>
 
 class ClientHandler {
 public:

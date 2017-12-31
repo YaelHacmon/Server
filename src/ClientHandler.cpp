@@ -1,4 +1,5 @@
 #include "../include/ClientHandler.h"
+#include "../include/CommunicationManager.h"
 
 using namespace std;
 
@@ -54,7 +55,6 @@ void ClientHandler::handleGame(GameInfo& g) {
 
 	//play game - accept commands from players
 	//loop will keep going until thread is terminated
-	int temp_sd;
 	while (true) {
 		string command = CommunicationManager::getInstance()->readString(g.getClientA(), g.getClientB());
 

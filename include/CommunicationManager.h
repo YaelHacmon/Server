@@ -11,6 +11,7 @@
 
 #pragma once
 
+#include "GameInfo.h"
 #include <string>
 
 //temporary links to actual classes used
@@ -61,12 +62,12 @@ public:
 	 * Writes string to client.
 	 * @return 1 if succeeded, 0 if not
 	 */
-	int writeString(std::string s, int client_sd);
+	int writeString(std::string& s, int client_sd);
 
 	/**
 	 * Return server of this CommunicationManager's instance
 	 */
-	Server getServer();
+	Server& getServer();
 
 	/**
 	 * Beautifier method for closing both sockets and killing thread
@@ -92,10 +93,10 @@ private:
     static CommunicationManager *instance_;
 
     //server to call when asked to read\write
-    Server server_;
+    Server* server_;
 
     //Client handler to call when asked to handle a client
-    ClientHandler handler_;
+    ClientHandler* handler_;
 };
 
 

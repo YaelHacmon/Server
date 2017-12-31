@@ -1,4 +1,6 @@
-#include "JoinCommand.h"
+#include "../include/JoinCommand.h"
+#include "../include/GamesInfoLists.h"
+#include "../include/CommunicationManager.h"
 #include <cstdlib> //for atoi()
 
 using namespace std;

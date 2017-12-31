@@ -3,8 +3,6 @@
 
 #include <vector>
 #include <string>
-#include "GamesInfoLists.h"
-#include "Server.h"
 
 /**
  * Represents a command from the client (sender, creator) to the server (receiver, invoker)
@@ -25,10 +23,6 @@ public:
 	 * @param args arguments for command's execution, by the set protocol of the certain instance
 	 */
 	virtual void execute(std::vector<std::string> args) = 0;
-
-protected:
-	Server server_;
-	GamesInfoLists list_;
 };
 
 #endif /* COMMAND_H_ */

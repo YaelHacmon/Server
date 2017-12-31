@@ -1,4 +1,4 @@
-#include "../include/CommandManager.h"
+#include "../include/CommandsManager.h"
 #include "../include/PlayCommand.h"
 #include "../include/StartGameCommand.h"
 #include "../include/ListGamesCommand.h"
@@ -10,32 +10,17 @@
 using namespace std;
 
 //c'tor - new commands should be added here
-CommandsManager::CommandsManager(Server& s, GamesInfoLists& list) {
-	commandsMap["play"] = new PlayCommand(s, list);
-	commandsMap["start"] = new StartGameCommand(s, list);
-	commandsMap["list_games"] = new ListGamesCommand(s, list);
-	commandsMap["join"] = new JoinCommand(s, list);
-	commandsMap["close"] = new CloseCommand(s, list);
+CommandsManager::CommandsManager() {
+	commandsMap["play"] = new PlayCommand();
+	commandsMap["start"] = new StartGameCommand();
+	commandsMap["list_games"] = new ListGamesCommand();
+	commandsMap["join"] = new JoinCommand();
+	commandsMap["close"] = new CloseCommand();
 }
 
 CommandsManager::~CommandsManager() {
 	//delete all commands
 	for (map<string, Command *>::iterator it = commandsMap.begin(); it != commandsMap.end(); it++) {
-		delete it->second;
-	}
-}
-
-void CommandsManager::executeCommand(string command, vector<string> args) {
-	Command *currCommand = commandsMap[command];
-	currCommand->execute(args);
-}
-
-
-CommandsManager::~CommandsManager() {
-	//deletes map, using iterator
-	map<string, Command *>::iterator it;
-	for (it = commandsMap.begin(); it !=
-			commandsMap.end(); it++) {
 		delete it->second;
 	}
 }
