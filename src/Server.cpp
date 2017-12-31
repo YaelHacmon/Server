@@ -1,4 +1,5 @@
 #include "../include/Server.h"
+#include "Cl"
 
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -18,12 +19,11 @@
 #define MAX_COMMAND_LENGTH 60
 //set maximal string length (for list_games command) to 1024 bytes (1 kb)
 #define MAX_STRING_LENGTH 1024
-//TODO - is this okay/enough? -> at least 20 games (longest string sent and recieved)
 
 using namespace std;
 
 //vector will be initialized via default c'tor
-Server::Server(string& fileName, ClientHandler& ch): serverSocket(0),  handler_(ch) {
+Server::Server(string& fileName): serverSocket(0) {
 	ifstream config;
 	config.open(fileName.c_str(), std::fstream::in);
 
@@ -72,7 +72,6 @@ void Server::start(){
 	//create identifier
 	pthread_t tid;
 
-	//TODO - why is this not working?
 	int rc = pthread_create(&tid, NULL, Server::acceptClients, NULL);
 	if (rc) {
 		cout << "Error: unable to create thread, " << rc << endl;
@@ -97,7 +96,7 @@ void Server::start(){
 
 	//first, close all sockets (clients will automatically try to read, get 0 and understand that server has disconnected)
 	//get vector of all open sockets
-	vector<int> sockets = gameList_.getAllOpenSockets();
+	vector<int> sockets = GamesInfoLists::getInstance()->getAllOpenSockets();
 	//close all sockets
 	for (vector<int>::const_iterator iter = sockets.begin(); iter != sockets.end(); iter++) {
 		close(*iter);
@@ -136,7 +135,7 @@ void* Server::acceptClients(void* s) {
 		//create identifier
 		pthread_t tid;
 
-		int rc = pthread_create(&tid, NULL, Server::handleSingleClient, (void *)ClientHandler(this, client_sd));
+		int rc = pthread_create(&tid, NULL, Server::handleSingleClient, (void *)client_sd);
 		if (rc) {
 			cout << "Error: unable to create thread, " << rc << endl;
 			pthread_exit(NULL);
@@ -150,58 +149,14 @@ void* Server::acceptClients(void* s) {
 }
 
 
-void Server::handleGame(GameInfo& g) {
-	//Sending 1 to show him he was the first to enter
-	int color = 1;
-	int n = write(g.getClientA(), &color, sizeof(color));
-	if (n == -1) {
-		//if problem occured - close sockets and kill thread
-		exitThread(g.getClientA(), g.getClientB());
-	}
+void* Server::handleSingleClient(void* sd) {
+	//cast to long and then to int (as instructed in class - problem with casting stright to int)
+	long temp = (long) sd;
+	int client_sd = (int) temp;
 
-	//Sending 2 to client 2 to show him he was the second to enter
-	color = 2;
-	n = write(g.getClientB(), &color, sizeof(color));
-	if (n == -1) {
-		//if problem occured - close sockets and kill thread
-		exitThread(g.getClientA(), g.getClientB());
-	}
-
-	//play game - accept commands from players
-	//loop will keep going until thread is terminated
-	int temp_sd;
-	while (true) {
-		string command = readString(g.getClientA(), g.getClientB());
-
-		//if a problem occurred - close socket and terminate thread (other client has already been notified of disconnection)
-		if(command == "") {
-			exitThread(g.getClientA(), g.getClientB());
-		}
-
-		//split command by space
-		vector<string> args = split(command);
-
-		//make command the first word
-		command = args[0];
-		//remove command from arguments
-		args.erase(args.begin());
-
-		//add the two file descriptors as the last two arguments
-		//sd of client 1
-		args.insert(args.end(), toString(g.getClientA()));
-
-		//sd of client 2
-		args.insert(args.end(), toString(g.getClientB())); //add to arguments
-
-		//execute command
-		commandManager_.executeCommand(command, args);
-
-		//switch players and keep communicating game
-		g.swapClients();
-
-	}//end of game loop - will end via killing thread ("close" command)
+	//handle client
+	CommunicationManager::getInstance()->handleClient(client_sd);
 }
-
 
 int Server::readNum(int client1_sd, int client2_sd) {
 	int num;
@@ -280,8 +235,7 @@ int Server::writeNum(int num, int client_sd) {
 
 string readString(int client_sd) {
 	string str;
-	//TODO - is it right to resize each time
-	//resize to maximal read string size
+	//resize to standard read string size
 	str.resize(MAX_COMMAND_LENGTH);
 
 	//read string sent
@@ -301,8 +255,7 @@ string readString(int client_sd) {
 
 string Server::readString(int client1_sd, int client2_sd) {
 	string str;
-	//TODO - is it right to resize each time
-	//resize to maximal read string size
+	//resize to standard read string size
 	str.resize(MAX_COMMAND_LENGTH);
 
 	//read string sent
@@ -318,7 +271,6 @@ string Server::readString(int client1_sd, int client2_sd) {
 		/* NOTICE: when reading a string with 2 players connected, after sending command (string), next move is read (int)
 		THEREFOR we can send (-3) as an error code (just like before).
 		In general - client sends both string and integer, but reads integers only */
-		//TODO - good design?? :|
 
 		//check that writing succeeded (do not use writeNum to avoid infinite loop)
 		if (n == -1) {
@@ -335,8 +287,7 @@ string Server::readString(int client1_sd, int client2_sd) {
 }
 
 int Server::writeString(string s, int client_sd) {
-	//TODO - is it right to resize each time
-	//resize to maximal sent string size
+	//resize to standard sent string size
 	s.resize(MAX_STRING_LENGTH);
 
 	//write number to opponent
@@ -362,5 +313,5 @@ void Server::exitThread(int client1_sd, int client2_sd) {
 	close(client2_sd);
 
 	//exit thread
-	pthread_exit(NULL); //TODO - return instead?
+	pthread_exit(NULL);
 }

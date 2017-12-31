@@ -13,7 +13,7 @@ public:
 	 * Constructor taking the server to be executed on, by reference.
 	 * @param server to apply command to
 	 */
-	PlayCommand(Server& s, GamesInfoLists& list);
+	PlayCommand();
 
 	/**
 	 * Executes the action of this command.

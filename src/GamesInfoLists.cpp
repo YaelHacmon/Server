@@ -2,11 +2,27 @@
 
 #include <algorithm>
 
+GamesInfoLists *GamesInfoLists::instance_ = 0;
+
+GamesInfoLists *GamesInfoLists::getInstance()
+{
+	if (instance_ == 0)
+	{
+		instance_ = new GamesInfoLists();
+	}
+	return instance_;
+}
+
 //games_ vector will be initialized via default c'tor
 GamesInfoLists::GamesInfoLists(): nullGame_("", -2) {}
 
-//vector will release elements
+//vector will release elements, no memory to free in real instance
 GamesInfoLists::~GamesInfoLists() {}
+
+static void GamesInfoLists::resetInstance() {
+	delete instance_; // REM : it works even if the pointer is NULL (does nothing then)
+	instance_ = NULL; // so GetInstance will still work.
+}
 
 
 GameInfo& GamesInfoLists::findGame(int client_sd) {

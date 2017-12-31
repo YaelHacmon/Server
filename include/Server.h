@@ -24,9 +24,8 @@ public:
 	/*
 	 * C'tor with filename for port number and client handler to handle client
 	 * @param fileName name of file with port number
-	 * @param ch client handler to handle accepted clients
 	 */
-	Server(string& fileName, ClientHandler& ch);
+	Server(string& fileName);
 
 	void start();
 
@@ -78,9 +77,9 @@ public:
 	vector<pthread_t> getThreadVector();
 
 	/**
-	 * Getter for commands manager, for use from static functions
+	 * Beautifier method for closing both sockets and killing thread
 	 */
-	CommandsManager getCommandManager();
+	void exitThread(int client1_sd, int client2_sd);
 
 private:
 	int port;
@@ -88,9 +87,6 @@ private:
 
 	//vector of threads
 	vector<pthread_t> threads_;
-
-	//handler of clients
-	ClientHandler handler_;
 
 	/**
 	 * Endless loop for accepting clients in separate thread.
@@ -100,14 +96,11 @@ private:
 	static void* acceptClients(void* s);
 
 	/**
-	 * Handles the full game between two clients.
+	 * Handles the initial communication with a client: asking to start\join a game and accepting answers
+	 * Function must be static to be passed to pthread_create()
+	 * @param cd client handler that can handle the given client
 	 */
-	void handleGame(GameInfo& g);
-
-	/**
-	 * Beautifier method for closing both sockets and killing thread
-	 */
-	void exitThread(int client1_sd, int client2_sd);
+	static void* handleSingleClient(void* ch);
 };
 
 

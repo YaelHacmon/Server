@@ -3,7 +3,7 @@
 
 using namespace std;
 
-JoinCommand::JoinCommand(Server& s, GamesInfoLists& list):  Command(s, list) {}
+JoinCommand::JoinCommand() {}
 
 
 void JoinCommand::execute(vector<string> args) {
@@ -12,11 +12,11 @@ void JoinCommand::execute(vector<string> args) {
 	int clientB = atoi(args[1].c_str());
 
 	//join game
-	GameInfo g = list_.joinGame(name, clientB);
+	GameInfo g = GamesInfoLists::getInstance()->joinGame(name, clientB);
 
 	//if returned GameInfo is not the null game (clientA=-2, name=empty string) - ask server to communicate given game
 	if (g != GameInfo("", -2)) {
-		server_.handleGame(g);
+		CommunicationManager::getInstance()->handleGame(g);
 	}
 
 	//end thread via return from method - game does not exist or is already being played

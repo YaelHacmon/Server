@@ -9,7 +9,7 @@ using namespace std;
 
 class ListGamesCommand: public Command {
 public:
-	ListGamesCommand(Server& s, GamesInfoLists& list);
+	ListGamesCommand();
 
 	/**
 	 * Executes the action of this command.

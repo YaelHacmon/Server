@@ -9,7 +9,7 @@ using namespace std;
 
 class StartGameCommand: public Command {
 public:
-	StartGameCommand(Server& s, GamesInfoLists& list);
+	StartGameCommand();
 
 	/**
 		 * Executes the action of this command.

@@ -3,14 +3,14 @@
 
 using namespace std;
 
-ListGamesCommand::ListGamesCommand(Server& s, GamesInfoLists& list): Command(s, list) {}
+ListGamesCommand::ListGamesCommand() {}
 
 void ListGamesCommand::execute(vector<string> args) {
 	//get given client's sd (first argument)
 	int client = atoi(args[0].c_str());
 
 	//get string of waiting games
-	string list = list_.listWaitingGames();
+	string list = GamesInfoLists::getInstance()->listWaitingGames();
 
 	//send list via server
 	//if problem occured - close client (exiting is done right after, anyway)

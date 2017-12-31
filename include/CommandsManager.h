@@ -10,11 +10,10 @@ class CommandsManager {
 public:
 	/**
 	 * Default c'tor, creates map with Commands.
-	 * @param s server for commands to act on
-	 * @param list of games to act on
-	 * declare server as class to avoid header include loop
+	 * 	Since both CommunicationManager and GamesInfoLists are singleton pattern designs,
+	 * no parameters are needed.
 	 */
-	CommandsManager(Server& s, GamesInfoLists& list);
+	CommandsManager();
 
 	/**
 	 * Destructor to release map

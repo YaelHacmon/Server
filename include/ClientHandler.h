@@ -1,7 +1,7 @@
 #ifndef CLIENTHANDLER_H_
 #define CLIENTHANDLER_H_
 
-#include "Server.h"
+#include "CommandsManager.h""
 #include <vector>
 #include <string>
 
@@ -9,26 +9,24 @@ class ClientHandler {
 public:
 	/**
 	 * C'tor of handler.
+	 * @param cmd command manager to manage client by
 	 */
-	ClientHandler();
+	ClientHandler(CommandsManager& cmd);
 
 	/**
-	 * Handles the initial communication with a client: asking to start\join a game and accepting answers
-	 * Function must be static to be passed to pthread_create()
-	 *
+	 * Handles the g client of this handler, using the given server.
 	 * @param client_sd socket descriptor of client
 	 */
-	static void* handle(void* client_sd);
+	void handleClient(int client_sd);
+
+	/**
+	 * Handles the full game logic between two clients.
+	 */
+	void handleGame(GameInfo& g);
 
 private:
-	//server to use in handling client
-	Server server_;
-
 	//manager of commands
 	CommandsManager commandManager_;
-
-	//handles the lists of existing games and their information
-	GamesInfoLists gameList_;
 
 	/**
 	 * Helper function for splitting a command by space

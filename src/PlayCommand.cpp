@@ -5,7 +5,7 @@
 
 using namespace std;
 
-PlayCommand::PlayCommand(Server& s, GamesInfoLists& list): Command(s, list) {}
+PlayCommand::PlayCommand() {}
 
 void PlayCommand::execute(vector<string> args) {
 	//get clients - first and second argument, by
@@ -55,7 +55,7 @@ void PlayCommand::closeGame(int client1_sd, int client2_sd) {
 	close(client1_sd);
 	close(client2_sd);
 	//remove from list - by client 1 (arbitrary, it doens't matter)
-	list_.removeGame(client1_sd);
+	GamesInfoLists::getInstance()->removeGame(client1_sd);
 
 	//kill thread - an error occured and we cannot keep on playing
 	//(client will read 0 from server and know that server disconnected)

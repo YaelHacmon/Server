@@ -8,7 +8,7 @@
 
 class CloseCommand: public Command {
 public:
-	CloseCommand(Server& s, GamesInfoLists& list);
+	CloseCommand();
 
 	/**
 	 * Executes the action of this command.

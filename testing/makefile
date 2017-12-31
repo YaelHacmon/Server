@@ -13,6 +13,9 @@ GameInfo.o: $(SRC)GameInfo.cpp $(INCLUDE)GameInfo.h
 GamesInfoLists.o: $(SRC)GamesInfoLists.cpp $(INCLUDE)GamesInfoLists.h $(INCLUDE)GameInfo.h
 	g++ $(CCFLAGS) $(SRC)GamesInfoLists.cpp
 	
+CommunicationManager.o: $(SRC)CommunicationManager.cpp $(INCLUDE)CommunicationManager.h
+	g++ $(CCFLAGS) $(SRC)CommunicationManager.cpp
+	
 Server.o: $(SRC)Server.cpp $(INCLUDE)Server.h
 	g++ $(CCFLAGS) $(SRC)Server.cpp
 
@@ -33,6 +36,9 @@ StartGameCommand.o: $(SRC)StartGameCommand.cpp $(INCLUDE)StartGameCommand.h $(IN
 
 CommandManager.o: $(SRC)CommandManager.cpp $(INCLUDE)CommandManager.h $(INCLUDE)Command.h $(INCLUDE)Server.h
 	g++ $(CCFLAGS) $(SRC)CommandManager.cpp
+	
+ClientHandler.o: $(SRC)ClientHandler.cpp $(INCLUDE)ClientHandler.h $(INCLUDE)CommandManager.h
+	g++ $(CCFLAGS) $(SRC)ClientHandler.cpp
 	
 main.o: $(SRC)main.cpp $(INCLUDE)Server.h
 	g++ $(CCFLAGS) $(SRC)main.cpp

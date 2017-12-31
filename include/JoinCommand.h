@@ -9,7 +9,7 @@ using namespace std;
 
 class JoinCommand: public Command {
 public:
-	JoinCommand(Server& s, GamesInfoLists& list);
+	JoinCommand();
 
 	/**
 	 * Executes the action of this command.

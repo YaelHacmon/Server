@@ -16,11 +16,14 @@ using namespace std;
 
 /**
  * Class to hold and manage all the games played via the server.
+ * Singleton design to allow easy access from all commands
  */
 class GamesInfoLists {
 public:
-	//empty c'tor
-	GamesInfoLists();
+	static GamesInfoLists *getInstance();
+
+	// static destructor for avoiding infinite loop when releasing real instance of class
+	static void resetInstance();
 
 	//d'tor
 	~GamesInfoLists();
@@ -79,6 +82,12 @@ public:
 	vector<int> getAllOpenSockets();
 
 private:
+	GamesInfoLists() {}; // Private c'tor
+	GamesInfoLists(const GamesInfoLists &other); // Private copy c'tor
+
+	//static class member
+	static GamesInfoLists *instance_;
+
 	//list of the games waiting to be played or being played
 	std::vector<GameInfo> games_;
 

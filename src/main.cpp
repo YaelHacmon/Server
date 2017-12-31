@@ -11,7 +11,9 @@
 using namespace std;
 
 int main(){
-	Server server("server_config.txt");
+	//get server from communications manager
+	CommunicationManager* comm = CommunicationManager::getInstance();
+	Server server = comm->getServer();
 
 	try {
 		server.start();
@@ -20,6 +22,10 @@ int main(){
 		exit(-1);
 	}
 
-	return 1;
+	//freeing singletons
+	CommunicationManager::resetInstance();
+	GamesInfoLists::resetInstance();
+
+	return 0;
 }
 
