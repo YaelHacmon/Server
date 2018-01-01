@@ -17,6 +17,7 @@
 //set maximal command length to 60 bytes (longest command - start/close <name> - is at most 56 characters)
 #define MAX_COMMAND_LENGTH 60
 
+ClientHandler* Server::handler_ = 0;
 
 using namespace std;
 
@@ -114,7 +115,7 @@ void Server::stop() {
 
 
 void* Server::acceptClients(void* socket) {
-	long serverSocket = (long)socket;
+	long* serverSocket = (long*) socket;
 	// Define the client socket's structures
 	struct sockaddr_in clientAddress;
 	//initialize the addresses - to allow for using 'accept' every time
@@ -124,12 +125,14 @@ void* Server::acceptClients(void* socket) {
 		cout << "Waiting for client connections..." << endl;
 
 		// Accept a new client connection
-		int clientSocket = accept(serverSocket, (struct sockaddr *)&clientAddress, &clientAddressLen);
+		int clientSocket = accept(*serverSocket, (struct sockaddr *)&clientAddress, &clientAddressLen);
 
 		cout << "Client connected" << endl;
 
-		if (clientSocket == -1)
+		if (clientSocket == -1) {
+			cout << "-1\n";
 			throw "Error on accept";
+		}
 
 		//short thread   no need to keep thread id
 		pthread_t threadId;

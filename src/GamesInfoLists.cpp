@@ -3,6 +3,7 @@
 #include <algorithm>
 
 GamesInfoLists *GamesInfoLists::instance_ = 0;
+pthread_mutex_t GamesInfoLists::lock_;
 
 GamesInfoLists *GamesInfoLists::getInstance()
 {

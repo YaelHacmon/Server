@@ -8,6 +8,9 @@
 
 using namespace std;
 
+CommandsManager* CommandsManager::instance_ = 0;
+pthread_mutex_t CommandsManager::lock_;
+
 CommandsManager* CommandsManager::getInstance() {
 	if (instance_ == 0) {
 		pthread_mutex_lock(&lock_);

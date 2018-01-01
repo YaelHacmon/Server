@@ -40,8 +40,9 @@ int main(){
 		exit(-1);
 	}
 
-	//free singleton
+	//free singletons
 	GamesInfoLists::resetInstance();
+	CommandsManager::resetInstance();
 
 	return 0;
 }
