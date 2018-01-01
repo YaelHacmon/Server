@@ -27,11 +27,11 @@ void ListGamesCommand::execute(vector<string>& args, pthread_t& tid) {
 }
 
 int ListGamesCommand::writeString(string& s, int client_sd) {
-	//resize to standard sent string size
-	s.resize(MAX_STRING_LENGTH);
+	//convert to char array
+	const char* str = s.c_str();
 
 	//write number to opponent
-	int n = write(client_sd, &s, sizeof(s));
+	int n = write(client_sd, str, sizeof(str));
 	if (n == -1) {
 		cout << "Error writing string to socket" << endl;
 		return 0;

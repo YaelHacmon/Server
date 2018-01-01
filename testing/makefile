@@ -1,6 +1,6 @@
 INCLUDE = ../include/
 SRC = ../src/
-CCFLAGS = -Wall -c -pthread -I $(INCLUDE)
+CCFLAGS = -Wall -c -pthread -I $(INCLUDE) -ggdb
 
 #create executalbe file by linking the object files
 a.out: GameInfo.o Utility.o GamesInfoLists.o CloseCommand.o JoinCommand.o ListGamesCommand.o PlayCommand.o StartGameCommand.o CommandsManager.o ClientHandler.o Server.o main.o

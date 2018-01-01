@@ -83,12 +83,10 @@ void JoinCommand::handleGame(GameInfo& g) {
 
 
 string JoinCommand::readString(int client1_sd, int client2_sd) {
-	string str;
-	//resize to standard read string size
-	str.resize(MAX_COMMAND_LENGTH);
+	char str[MAX_COMMAND_LENGTH];
 
 	//read string sent
-	int n = read(client1_sd, &str, sizeof(str));
+	int n = read(client1_sd, str, sizeof(str));
 	if (n == -1) {
 		cout << "Error reading string from socket" << endl;
 		return "";
@@ -112,7 +110,7 @@ string JoinCommand::readString(int client1_sd, int client2_sd) {
 	}
 
 	//otherwise - all is well, return string read row
-	return str;
+	return string(str);
 }
 
 
