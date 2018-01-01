@@ -8,7 +8,6 @@
 using namespace std;
 
 int main(){
-	printf("main\n");
 	//create client handler
 	ClientHandler handler;
 
@@ -23,13 +22,14 @@ int main(){
 		cout << "Enter exit to stop server" << endl;
 		string input;
 		while(true){
-			printf("while\n");
 			cin >> input;
 			//no need for string input validation
 			//if input is "exit" - break loop and close all threads
 			if (input == "exit") {
 				break;
 			}
+			//otherwise - reprint message
+			cout << "Enter exit to stop server" << endl;
 		}
 
 		//kill server

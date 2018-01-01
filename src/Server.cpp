@@ -25,8 +25,6 @@ using namespace std;
 Server::Server(const string& fileName, ClientHandler& ch): serverSocket(0) {
 	handler_ = &ch;
 
-	printf("server c'tor called\n");
-
 	ifstream config;
 	config.open(fileName.c_str(), std::fstream::in);
 
@@ -44,8 +42,6 @@ Server::Server(const string& fileName, ClientHandler& ch): serverSocket(0) {
 
 	//assign server port - 	translate port number to integer
 	port = atoi(portNum.c_str());
-
-	printf("server c'tor called successfully\n");
 }
 
 void Server::start(){
@@ -73,12 +69,15 @@ void Server::start(){
 	//start listening for clients
 	listen(serverSocket, MAX_CONNECTED_CLIENTS);
 
+	acceptClients((void *)&serverSocket); //TODO
+
+	/*TODO
 	//create thread for accepting clients
 	int rc = pthread_create(&serverThreadId, NULL, acceptClients, (void *)&serverSocket);
 	if (rc) {
 		cout << "Error: unable to create thread, " << rc << endl;
 		exit(-1);
-	}
+	}*/
 
 	//exit thread - return to main
 }
@@ -111,9 +110,6 @@ void Server::stop() {
 }
 
 
-
-
-
 void* Server::acceptClients(void* socket) {
 	long* serverSocket = (long*) socket;
 	// Define the client socket's structures
@@ -130,10 +126,13 @@ void* Server::acceptClients(void* socket) {
 		cout << "Client connected" << endl;
 
 		if (clientSocket == -1) {
-			cout << "-1\n";
+			cout << "Error on accept\n";
 			throw "Error on accept";
 		}
 
+		handleSingleClient((void *)&clientSocket); //TODO
+
+		/*TODO
 		//short thread   no need to keep thread id
 		pthread_t threadId;
 		int rc = pthread_create(&threadId, NULL, handleSingleClient, (void *)&clientSocket);
@@ -142,7 +141,7 @@ void* Server::acceptClients(void* socket) {
 			cout << "Error: unable to create thread, " << rc << endl;
 			pthread_exit(NULL);
 		}
-
+*/
 		//keep on accepting
 	}
 
@@ -152,6 +151,8 @@ void* Server::acceptClients(void* socket) {
 
 
 void* Server::handleSingleClient(void* info) {
+	cout << "\tin handle single client\n"; //TODO
+
 	//cast to long and then to int (as instructed in class - problem with casting stright to int)
 	Server::ClientHandleInfo* clientInfo = (Server::ClientHandleInfo*) info;
 

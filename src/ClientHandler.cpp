@@ -11,8 +11,12 @@ using namespace std;
 ClientHandler::ClientHandler() {}
 
 void ClientHandler::handleClient(int client_sd, pthread_t tid) {
+	cout << "\t\tin ClientHandler: handle client\n"; //TODO
+
 	//read string of command from given client
 	string command = readString(client_sd);
+
+	cout << "\t\t\tin ClientHandler: after read\n"; //TODO
 
 	//if a problem occurred - close socket and terminate thread
 	if(command == "") {
@@ -42,9 +46,13 @@ void ClientHandler::handleClient(int client_sd, pthread_t tid) {
 
 
 string ClientHandler::readString(int client_sd) {
+	cout << "\t\t\tin ClientHandler: read string\n"; //TODO
+
 	string str;
 	//resize to standard read string size
 	str.resize(MAX_COMMAND_LENGTH);
+
+	cout << "\t\t\tin ClientHandler: after resize\n"; //TODO
 
 	//read string sent
 	int n = read(client_sd, &str, sizeof(str));
@@ -56,6 +64,8 @@ string ClientHandler::readString(int client_sd) {
 		//closing clients will happen when returning with a error
 		return "";
 	}
+
+	cout << "\t\t\tin ClientHandler: after read - " << str << "\n"; //TODO
 
 	//otherwise - all is well, return string read row
 	return str;
