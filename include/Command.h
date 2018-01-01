@@ -21,8 +21,9 @@ public:
 	/**
 	 * Executes the action of this command.
 	 * @param args arguments for command's execution, by the set protocol of the certain instance
+	 * @param tid id of current thread
 	 */
-	virtual void execute(std::vector<std::string> args) = 0;
+	virtual void execute(std::vector<std::string>& args, pthread_t& tid) = 0;
 };
 
 #endif /* COMMAND_H_ */

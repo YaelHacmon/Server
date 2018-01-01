@@ -1,9 +1,6 @@
 #ifndef GAMESINFOS_H_
 #define GAMESINFOS_H_
 
-#ifndef SRC_Utilities_H_
-#define SRC_Utilities_H_
-
 #include <string>
 #include <vector>
 #include <map>
@@ -65,21 +62,27 @@ public:
 	 * Starts a new waiting game in list, with the given name and client's socket descriptor. Given sd is of first (black) player.
 	 * @return 0 if succeeded, 1 if a game with the given name exists already.
 	 */
-	int startNewGame(string name, int clientA);
+	int startNewGame(string& name, int clientA);
 
 	/**
-	 * Joins given player (by sd) to a given existing game (by name).
+	 * Joins given player (by sd) to a given existing game (by name), and the pthread of the current id.
 	 * Checks that game exists and can be joined.
 	 * @return the updated GameInfo, or a null game (clientA=-2, name=empty string)
 	 * if either no such game exists or given game is already being played
 	 */
-	GameInfo joinGame(string name, int clientB);
+	GameInfo joinGame(string& name, int clientB, pthread_t& tid);
 
 	/**
 	 * Returns the socket descriptors of all currently open sockets, in a vector of integers.
 	 * Used for closing the server
 	 */
 	vector<int> getAllOpenSockets();
+
+	/**
+	 * Returns the socket descriptors of all currently open sockets, in a vector of integers.
+	 * Used for closing the server
+	 */
+	vector<pthread_t> getAllThreadIDs();
 
 private:
 	GamesInfoLists(); // Private c'tor
@@ -88,11 +91,14 @@ private:
 	//static class member
 	static GamesInfoLists *instance_;
 
+	//lock for first instantiation
+	static pthread_mutex_t lock_;
+
 	//list of the games waiting to be played or being played
 	std::vector<GameInfo> games_;
 
 	//mutex for locking in code acting on vector
-	pthread_mutex_t vectorMutex_;
+	pthread_mutex_t vectorMutex_; //TODO
 
 	//null game - to avoid recreating each time
 	GameInfo nullGame_;
@@ -104,9 +110,5 @@ private:
 	 */
 	vector<GameInfo>::iterator findGamePosition(int client_sd);
 };
-
-#endif /* SRC_Utilities_H_ */
-
-
 
 #endif /* GAMESINFOS_H_ */

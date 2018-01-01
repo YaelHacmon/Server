@@ -8,7 +8,7 @@ using namespace std;
 CloseCommand::CloseCommand() {}
 
 
-void CloseCommand::execute(vector<string> args) {
+void CloseCommand::execute(vector<string>& args, pthread_t& tid) {
 	//get client1 - first argument
 	int client1_sd = atoi(args[0].c_str());
 

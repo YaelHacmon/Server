@@ -3,21 +3,18 @@ SRC = ../src/
 CCFLAGS = -Wall -c -pthread -I $(INCLUDE)
 
 #create executalbe file by linking the object files
-a.out: GameInfo.o GamesInfoLists.o CommunicationManager.o Server.o CloseCommand.o JoinCommand.o ListGamesCommand.o PlayCommand.o StartGameCommand.o CommandsManager.o ClientHandler.o main.o
-	g++ -pthread -Wall GameInfo.o GamesInfoLists.o CommunicationManager.o Server.o CloseCommand.o JoinCommand.o ListGamesCommand.o PlayCommand.o StartGameCommand.o CommandsManager.o ClientHandler.o main.o
+a.out: GameInfo.o Utility.o GamesInfoLists.o CloseCommand.o JoinCommand.o ListGamesCommand.o PlayCommand.o StartGameCommand.o CommandsManager.o ClientHandler.o Server.o main.o
+	g++ -pthread -Wall GameInfo.o Utility.o GamesInfoLists.o CloseCommand.o JoinCommand.o ListGamesCommand.o PlayCommand.o StartGameCommand.o CommandsManager.o ClientHandler.o Server.o main.o
 
 #creating all object files from source code
+Utility.o: $(SRC)Utility.cpp $(INCLUDE)Utility.h
+	g++ $(CCFLAGS) $(SRC)Utility.cpp
+
 GameInfo.o: $(SRC)GameInfo.cpp $(INCLUDE)GameInfo.h
 	g++ $(CCFLAGS) $(SRC)GameInfo.cpp
 	
 GamesInfoLists.o: $(SRC)GamesInfoLists.cpp $(INCLUDE)GamesInfoLists.h $(INCLUDE)GameInfo.h
 	g++ $(CCFLAGS) $(SRC)GamesInfoLists.cpp
-	
-CommunicationManager.o: $(SRC)CommunicationManager.cpp $(INCLUDE)CommunicationManager.h
-	g++ $(CCFLAGS) $(SRC)CommunicationManager.cpp
-	
-Server.o: $(SRC)Server.cpp $(INCLUDE)Server.h
-	g++ $(CCFLAGS) $(SRC)Server.cpp
 
 CloseCommand.o: $(SRC)CloseCommand.cpp $(INCLUDE)CloseCommand.h $(INCLUDE)Command.h
 	g++ $(CCFLAGS) $(SRC)CloseCommand.cpp
@@ -39,6 +36,9 @@ CommandsManager.o: $(SRC)CommandsManager.cpp $(INCLUDE)CommandsManager.h $(INCLU
 	
 ClientHandler.o: $(SRC)ClientHandler.cpp $(INCLUDE)ClientHandler.h $(INCLUDE)CommandsManager.h
 	g++ $(CCFLAGS) $(SRC)ClientHandler.cpp
+	
+Server.o: $(SRC)Server.cpp $(INCLUDE)Server.h
+	g++ $(CCFLAGS) $(SRC)Server.cpp
 	
 main.o: $(SRC)main.cpp $(INCLUDE)Server.h
 	g++ $(CCFLAGS) $(SRC)main.cpp

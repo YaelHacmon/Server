@@ -1,20 +1,19 @@
 /*
  * GameInfo.cpp
- *
- *  Created on: Dec 23, 2017
- *      Author: yael
  */
 #include "GameInfo.h"
 
 GameInfo::GameInfo(std::string name, int clientA_): gameName_(name), clientA_(clientA_), clientB_(-1),
-status_(GameInfo::Waiting), interrupt(false) {};
+tid_(-1), status_(GameInfo::Waiting) {};
 
 int GameInfo::getClientA() const {
 	return clientA_;
 }
 
 void GameInfo::setClientA(int clientA) {
+	pthread_mutex_lock(&clientAMutex_);
 	this->clientA_ = clientA;
+	pthread_mutex_unlock(&clientAMutex_);
 }
 
 int GameInfo::getClientB() const {
@@ -22,11 +21,23 @@ int GameInfo::getClientB() const {
 }
 
 void GameInfo::setClientB(int clientB) {
+	pthread_mutex_lock(&clientBMutex_);
 	this->clientB_ = clientB;
+	pthread_mutex_unlock(&clientBMutex_);
 }
 
 const std::string& GameInfo::getGameName() const {
 	return gameName_;
+}
+
+pthread_t& GameInfo::getTID() {
+	return tid_;
+}
+
+void GameInfo::setTID(pthread_t& id) {
+	pthread_mutex_lock(&tidMutex_);
+	this->tid_ = id;
+	pthread_mutex_unlock(&tidMutex_);
 }
 
 void GameInfo::setStatus(GameInfo::MatchStatus status) {
@@ -35,21 +46,18 @@ void GameInfo::setStatus(GameInfo::MatchStatus status) {
 	pthread_mutex_unlock(&statusMutex_);
 }
 
-void GameInfo::setInterrupt(bool interrupt) {
-	this->interrupt = interrupt;
-}
-
-
 bool GameInfo::isWaiting() const {
 	return status_ == GameInfo::Waiting;
 }
 
 
-void GameInfo::play(int clientB) {
+void GameInfo::play(int clientB, pthread_t id) {
 	//update the second client
 	setClientB(clientB);
 	//update the status
 	setStatus(GameInfo::Playing);
+	//update thread id
+	setTID(id);
 }
 
 

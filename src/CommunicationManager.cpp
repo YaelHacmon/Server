@@ -1,4 +1,4 @@
-#include "CommunicationManager.h"
+/*#include "CommunicationManager.h"
 #include "../include/Server.h"
 #include "../include/ClientHandler.h"
 #include "../include/CommandsManager.h"
@@ -18,7 +18,6 @@ CommunicationManager::CommunicationManager() {
 	server_ = new Server("server_config.txt");
 }
 
-//empty destructor - no memory to free at real instance
 CommunicationManager::~CommunicationManager() {
 	delete handler_;
 	delete server_;
@@ -28,8 +27,10 @@ CommunicationManager *CommunicationManager::getInstance()
 {
 	if (instance_ == 0)
 	{
+		printf("creading comm manager\n");
 		instance_ = new CommunicationManager;
 	}
+	printf("returning comm manager\n");
 	return instance_;
 }
 
@@ -37,7 +38,7 @@ CommunicationManager *CommunicationManager::getInstance()
 void CommunicationManager::resetInstance()
 {
 	delete instance_; // REM : it works even if the pointer is NULL (does nothing then)
-	instance_ = NULL; // so GetInstance will still work.
+	instance_ = 0; // so GetInstance will still work.
 }
 
 int CommunicationManager::readNum(int client1_sd, int client2_sd) {
@@ -65,6 +66,7 @@ int CommunicationManager::writeString(string &s, int client_sd) {
 }
 
 Server& CommunicationManager::getServer() {
+	printf("return server\n");
 	return *server_;
 }
 
@@ -79,3 +81,4 @@ void CommunicationManager::handleClient(int client_sd) {
 void CommunicationManager::handleGame(GameInfo& g) {
 	handler_->handleGame(g);
 }
+*/

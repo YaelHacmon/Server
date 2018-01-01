@@ -17,8 +17,9 @@ public:
 	 * Changes game status to ENDING
 	 *
 	 * @param args arguments for command's execution, by the set protocol of the certain instance
+	 * @param tid id of current thread
 	 */
-	virtual void execute(std::vector<std::string> args);
+	virtual void execute(std::vector<std::string>& args, pthread_t& tid);
 };
 
 #endif /* CLOSECOMMAND_H_ */

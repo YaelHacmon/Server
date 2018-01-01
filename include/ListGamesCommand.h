@@ -18,8 +18,16 @@ public:
 	 * Gets string with list of waiting games from GamesInfoLists, then sends to given client.
 	 *
 	 * @param args arguments for command's execution, by the set protocol of the certain instance
+	 * @param tid id of current thread
 	 */
-	virtual void execute(vector<string> args);
+	virtual void execute(std::vector<std::string>& args, pthread_t& tid);
+
+protected:
+	/**
+	 * Writes string to client, helper method.
+	 * @return 1 if succeeded, 0 if not
+	 */
+	virtual int writeString(string& s, int client_sd);
 };
 
 #endif /* LISTGAMESCOMMAND_H_ */

@@ -6,9 +6,12 @@ GamesInfoLists *GamesInfoLists::instance_ = 0;
 
 GamesInfoLists *GamesInfoLists::getInstance()
 {
-	if (instance_ == 0)
-	{
-		instance_ = new GamesInfoLists();
+	if (instance_ == 0) {
+		pthread_mutex_lock(&lock_);
+		if (instance_ == 0) {
+			instance_ = new GamesInfoLists();
+		}
+		pthread_mutex_unlock(&lock_);
 	}
 	return instance_;
 }
@@ -110,7 +113,7 @@ string GamesInfoLists::listWaitingGames() {
 }
 
 
-int GamesInfoLists::startNewGame(string name, int clientA) {
+int GamesInfoLists::startNewGame(string& name, int clientA) {
 	//check if a game with the given name exists
 	GameInfo g = findGame(name);
 
@@ -133,12 +136,12 @@ int GamesInfoLists::startNewGame(string name, int clientA) {
 }
 
 
-GameInfo GamesInfoLists::joinGame(string name, int clientB) {
+GameInfo GamesInfoLists::joinGame(string& name, int clientB, pthread_t& tid) {
 	//find game
 	GameInfo g = findGame(name);
 	//if game is not null and is waiting - join it
 	if (g != nullGame_ && g.isWaiting()) {
-		g.play(clientB);
+		g.play(clientB, tid);
 		return g;
 	}
 
@@ -161,4 +164,17 @@ vector<int> GamesInfoLists::getAllOpenSockets() {
 	}
 
 	return sockets;
+}
+
+vector<pthread_t> GamesInfoLists::getAllThreadIDs() {
+	vector<pthread_t> threads;
+
+	for (vector<GameInfo>::iterator iter = games_.begin(); iter != games_.end(); iter++) {
+		//if game is not waiting (=game is playing) - add thread's id
+		if (!iter->isWaiting()) {
+			threads.push_back(iter->getTID());
+		}
+	}
+
+	return threads;
 }

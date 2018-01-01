@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <vector>
 #include <string>
+#include "ClientHandler.h"
 
 using namespace std;
 
@@ -21,83 +22,55 @@ public:
 	/*
 	 * C'tor with filename for port number and client handler to handle client
 	 * @param fileName name of file with port number
+	 * @param ch client handler to use in handling client
 	 */
-	Server(const string& fileName);
+	Server(const string& fileName, ClientHandler& ch);
 
+	/**
+	 * Starts the server - in a new thread
+	 */
 	void start();
 
 	/**
-	 * Reads integer from client1. (Protocol: -2 is noMoves flag)
-	 * @return number read if succeeded, -1 if not
+	 * Stops the server - cancels all threads and exits.
 	 */
-	int readNum(int client1_sd, int client2_sd);
-
-	/**
-	 * Writes integer to client2.
-	 * @return 1 if succeeded, 0 if not
-	 */
-	int writeNum(int num, int client1_sd, int client2_sd);
-
-	/**
-	 * Writes integer to client.
-	 * @return 1 if succeeded, 0 if not
-	 */
-	int writeNum(int num, int client_sd);
-
-	/**
-	 * Reads string from client.
-	 * @return string read if succeeded, an empty string if not
-	 */
-	string readString(int client_sd);
-
-	/**
-	 * Reads string from client1.
-	 * @return string read if succeeded, an empty string if not
-	 */
-	string readString(int client1_sd, int client2_sd);
-
-	/**
-	 * Writes string to client.
-	 * @return 1 if succeeded, 0 if not
-	 */
-	int writeString(string& s, int client_sd);
-
+	void stop();
 
 	/**
 	 * Getter for server socket, for use from static functions
 	 */
 	int getServerSocket();
 
-	/**
-	 * Getter for commands manager, for use from static functions
-	 */
-	vector<pthread_t>& getThreadVector();
-
-	/**
-	 * Beautifier method for closing both sockets and killing thread
-	 */
-	void exitThread(int client1_sd, int client2_sd);
-
 private:
 	int port;
 	int serverSocket;
+	pthread_t serverThreadId; //id of acceptClients's thread
 
-	//vector of threads
-	vector<pthread_t> threads_;
+	//handler of client - static to make a class member, instead of instance memberWWWWWW
+	static ClientHandler* handler_;
+
+	//static method for getting handler
+	static ClientHandler& getHandler();
 
 	/**
 	 * Endless loop for accepting clients in separate thread.
 	 * Function must be static to be passed to pthread_create()
-	 * @param null - no parameters needed
+	 * @param socket - socket of server to accept with
 	 */
-	static void* acceptClients(void* null);
+	static void *acceptClients(void *socket);
 
 	/**
 	 * Handles the initial communication with a client: asking to start\join a game and accepting answers
 	 * Function must be static to be passed to pthread_create()
-	 * @param cd client handler that can handle the given client
+	 * @param info - information to use in handling client: socket of client to handle and thread's id
 	 */
-	static void* handleSingleClient(void* sd);
+	static void* handleSingleClient(void* info);
+
+	//struct for passing both thread id and socket to handleSingleClient() method
+	struct ClientHandleInfo {
+		int socket; //socket number
+		pthread_t tid; //thread id of current thread
+	};
 };
 
 

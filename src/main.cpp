@@ -8,19 +8,39 @@
 using namespace std;
 
 int main(){
-	//get server from communications manager
-	CommunicationManager* comm = CommunicationManager::getInstance();
-	Server server = comm->getServer();
+	printf("main\n");
+	//create client handler
+	ClientHandler handler;
+
+	//create server
+	Server server("server_config.txt", handler);
 
 	try {
+		//start server - in thread
 		server.start();
+
+		//accept input from user
+		cout << "Enter exit to stop server" << endl;
+		string input;
+		while(true){
+			printf("while\n");
+			cin >> input;
+			//no need for string input validation
+			//if input is "exit" - break loop and close all threads
+			if (input == "exit") {
+				break;
+			}
+		}
+
+		//kill server
+		server.stop();
+
 	} catch (const char *msg) {
-		cout << "\nCannot start server. Reason: " << msg << endl;
+		cout << "Cannot start server. Reason: " << msg << endl;
 		exit(-1);
 	}
 
-	//freeing singletons
-	CommunicationManager::resetInstance();
+	//free singleton
 	GamesInfoLists::resetInstance();
 
 	return 0;

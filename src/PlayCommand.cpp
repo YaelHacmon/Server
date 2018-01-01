@@ -1,21 +1,20 @@
 #include "../include/PlayCommand.h"
 #include "../include/GamesInfoLists.h"
-#include "../include/CommunicationManager.h"
 #include <pthread.h>
-#include <unistd.h> //for close()
+#include <unistd.h> //for close(), read(), write()
 #include <cstdlib> //for atoi()
 
 using namespace std;
 
 PlayCommand::PlayCommand() {}
 
-void PlayCommand::execute(vector<string> args) {
+void PlayCommand::execute(vector<string>& args, pthread_t& tid) {
 	//get clients - first and second argument, by
 	int client1_sd = atoi(args[0].c_str());
 	int client2_sd = atoi(args[1].c_str());
 
 	//read row - first number sent
-	int row = CommunicationManager::getInstance()->readNum(client1_sd, client2_sd);
+	int row = readNum(client1_sd, client2_sd);
 	//if problem occurred - close game
 	if (row == -1) {
 		//close game
@@ -24,7 +23,7 @@ void PlayCommand::execute(vector<string> args) {
 
 	//write row to other player, agreed flag for no moves is (-2)
 	//if an error occurred -  close game
-	if(!CommunicationManager::getInstance()->writeNum(row, client1_sd, client2_sd)) {
+	if(!writeNum(row, client1_sd, client2_sd)) {
 		//close game
 		closeGame(client1_sd, client2_sd);
 	}
@@ -32,7 +31,7 @@ void PlayCommand::execute(vector<string> args) {
 	//if other player made a move (did not send -2) - read and write column of player's move
 	if (row != -2) {
 		//read column
-		int column = CommunicationManager::getInstance()->readNum(client1_sd, client2_sd);
+		int column = readNum(client1_sd, client2_sd);
 		//if problem occurred - close game
 		if (column == -1) {
 			//close game
@@ -41,14 +40,11 @@ void PlayCommand::execute(vector<string> args) {
 
 		//write column
 		//if an error occurred - close game
-		if(!CommunicationManager::getInstance()->writeNum(column, client1_sd, client2_sd)) {
+		if(!writeNum(column, client1_sd, client2_sd)) {
 			//close game
 			closeGame(client1_sd, client2_sd);
 		}
 	}
-
-	//method ended successfully
-	//thread should not be killed (as opposed to other commands), because game is still being played
 }
 
 
@@ -62,4 +58,59 @@ void PlayCommand::closeGame(int client1_sd, int client2_sd) {
 	//kill thread - an error occured and we cannot keep on playing
 	//(client will read 0 from server and know that server disconnected)
 	pthread_exit(NULL);
+}
+
+int PlayCommand::readNum(int client1_sd, int client2_sd) {
+	int num;
+	//read number sent
+	int n = read(client1_sd, &num, sizeof(num));
+	if (n == -1) {
+		cout << "Error reading number from socket" << endl;
+		return -1;
+	}else if (n == 0) {
+		//if no bytes were read from client - client1 has disconnected
+		//notify other client (client2) - write (-3) to opponent
+		num = -3;
+		int n = write(client2_sd, &num, sizeof(num));
+
+		//check that writing succeeded (do not use writeNum to avoid infinite loop)
+		if (n == -1) {
+			cout << "Error writing number to socket" << endl;
+		}
+
+		//closing clients will happen when returning with a error
+
+		return -1;
+	}
+
+	//otherwise - all is well, return number read row
+	return num;
+}
+
+
+int PlayCommand::writeNum(int num, int client1_sd, int client2_sd) {
+	//write number to opponent
+	int n = write(client2_sd, &num, sizeof(num));
+	if (n == -1) {
+		cout << "Error writing number to socket" << endl;
+		return 0;
+
+	} else if (n == 0) {
+		//if no bytes were written to client - client2 has disconnected
+		//notify other client (client1) - write (-3) to opponent
+		num = -3;
+		int n = write(client1_sd, &num, sizeof(num));
+
+		//check that writing succeeded (do not use writeNum to avoid infinite loop)
+		if (n == -1) {
+			cout << "Error writing number to socket" << endl;
+		}
+
+		//closing clients will happen when returning with a error
+
+		return 0;
+	}
+
+	//all went well - return 1
+	return 1;
 }

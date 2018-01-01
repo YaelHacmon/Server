@@ -1,14 +1,16 @@
 #include "../include/ListGamesCommand.h"
 #include "../include/GamesInfoLists.h"
-#include "../include/CommunicationManager.h"
 #include <unistd.h> //for close()
 #include <cstdlib> //for atoi()
+
+//set maximal string length (for list_games command) to 1024 bytes (1 kb)
+#define MAX_STRING_LENGTH 1024
 
 using namespace std;
 
 ListGamesCommand::ListGamesCommand() {}
 
-void ListGamesCommand::execute(vector<string> args) {
+void ListGamesCommand::execute(vector<string>& args, pthread_t& tid) {
 	//get given client's sd (first argument)
 	int client = atoi(args[0].c_str());
 
@@ -17,9 +19,29 @@ void ListGamesCommand::execute(vector<string> args) {
 
 	//send list via server
 	//if problem occured - close client (exiting is done right after, anyway)
-	if (!CommunicationManager::getInstance()->writeString(list, client)) {
+	if (!writeString(list, client)) {
 		close(client);
 	}
 
 	//end thread via return from method
+}
+
+int ListGamesCommand::writeString(string& s, int client_sd) {
+	//resize to standard sent string size
+	s.resize(MAX_STRING_LENGTH);
+
+	//write number to opponent
+	int n = write(client_sd, &s, sizeof(s));
+	if (n == -1) {
+		cout << "Error writing string to socket" << endl;
+		return 0;
+
+	}else if (n == 0) {
+		//if no bytes were read from client - client has disconnected, return 0 (an error occurred)
+		//closing clients will happen when returning with a error
+		return 0;
+	}
+
+	//all went well - return 1
+	return 1;
 }

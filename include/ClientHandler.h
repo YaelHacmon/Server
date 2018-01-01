@@ -2,10 +2,6 @@
 #define CLIENTHANDLER_H_
 
 #include "CommandsManager.h"
-#include <vector>
-#include <string>
-#include <sstream>
-#include <iterator>
 
 class ClientHandler {
 public:
@@ -13,32 +9,20 @@ public:
 	 * C'tor of handler.
 	 * @param cmd command manager to manage client by
 	 */
-	ClientHandler(CommandsManager& cmd);
+	ClientHandler();
 
 	/**
 	 * Handles the g client of this handler, using the given server.
 	 * @param client_sd socket descriptor of client
+	 * @param tid thread id of current thread
 	 */
-	void handleClient(int client_sd);
+	void handleClient(int client_sd, pthread_t tid);
 
 	/**
-	 * Handles the full game logic between two clients.
+	 * Reads string from client.
+	 * @return string read if succeeded, an empty string if not
 	 */
-	void handleGame(GameInfo& g);
-
-private:
-	//manager of commands
-	CommandsManager commandManager_;
-
-	/**
-	 * Helper function for splitting a command by space
-	 */
-	vector<string> split(string& line);
-
-	/**
-	 * Helper function for cleaner code: converts integer to string
-	 */
-	string toString(int a);
+	string readString(int client_sd);
 };
 
 

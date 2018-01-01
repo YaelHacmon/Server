@@ -35,8 +35,10 @@ public:
 	 */
 	const std::string& getGameName() const;
 
-	//TODO - what does this mean?
-	void setInterrupt(bool interrupt);
+	/**
+	 * Getter for thread's id. Non-const to allow usage
+	 */
+	pthread_t& getTID();
 
 	/**
 	 * Checks if game is waiting. Returns true if is waiting, false otherwise
@@ -44,10 +46,10 @@ public:
 	bool isWaiting() const;
 
 	/**
-	 * Play game with given second client.
+	 * Play game with given second client, in given thread.
 	 * If game is not in waiting status - nothing is done
 	 */
-	void play(int clientB);
+	void play(int clientB, pthread_t id);
 
 	/**
 	 * Swaps the two clients, to use when playing the turns in game
@@ -71,12 +73,15 @@ private:
 	int clientA_;
 	int clientB_;
 
+	//thread id of game
+	pthread_t tid_;
+
 	GameInfo::MatchStatus status_;
 
-	bool interrupt; //TODO - remove?
-
 	pthread_mutex_t statusMutex_;
-	pthread_mutex_t interruptMutex_; //TODO - remove?
+	pthread_mutex_t clientAMutex_;
+	pthread_mutex_t clientBMutex_;
+	pthread_mutex_t tidMutex_;
 
 	/**
 	 * Setter for client 1
@@ -92,6 +97,11 @@ private:
 	 *  Setter for game status
 	 */
 	void setStatus(GameInfo::MatchStatus status);
+
+	/**
+	 * Setter for thread's id
+	 */
+	void setTID(pthread_t& id);
 };
 
 #endif /* GAMEINFO_H_ */
