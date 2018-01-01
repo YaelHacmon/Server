@@ -160,7 +160,7 @@ void* Server::handleSingleClient(void* sd) {
 }
 
 int Server::getServerSocket() {
-	return 0;
+	return serverSocket;
 }
 
 vector<pthread_t>& Server::getThreadVector() {
