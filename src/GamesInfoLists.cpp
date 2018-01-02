@@ -123,14 +123,16 @@ int GamesInfoLists::startNewGame(string& name, int clientA) {
 		return 1;
 	}
 
+	//else - create new game and add game to list
+	GameInfo* game = new GameInfo(name, clientA);
 
 	//lock - this is a common resource, we must protect
 	pthread_mutex_lock(&vectorMutex_);
-
-	//else - create new game and add game to list
-	games_.push_back(GameInfo(name, clientA));
+	games_.push_back(*game);
 
 	pthread_mutex_unlock(&vectorMutex_);
+
+	cout << "game created\n";
 
 	//method ended successfully - return 0
 	return 0;
