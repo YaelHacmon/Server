@@ -12,7 +12,7 @@ public:
 
 	/**
 	 * Executes the action of this command.
-	 * In this case - closes the game played by the two given players (first and second argument in vector)
+	 * In this case - closes the game (name in first argument) played by the two given players (second and third argument in vector)
 	 *
 	 * Changes game status to ENDING
 	 *

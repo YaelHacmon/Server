@@ -9,20 +9,19 @@ CloseCommand::CloseCommand() {}
 
 
 void CloseCommand::execute(vector<string>& args, pthread_t& tid) {
-	//get client1 - first argument
-	int client1_sd = atoi(args[0].c_str());
-
 	//find game by client1's sd (arbitrary)
-	GameInfo g = GamesInfoLists::getInstance()->findGame(client1_sd);
+	GameInfo* g = GamesInfoLists::getInstance()->findGame(args[0]);
+
+	cout << "\t\t\tin CloseCommand: line " << __LINE__  << "\n"; //TODO
 
 	//close sockets - we don't know who is which, so close using socket despcriptors from GameInfo
-	close(g.getClientA());
-	close(g.getClientB());
+	close(g->getClientA());
+	close(g->getClientB());
 
 	//remove from list - by client 1 (arbitrary, it doens't matter)
-	GamesInfoLists::getInstance()->removeGame(client1_sd);
+	GamesInfoLists::getInstance()->removeGame(g);
 
-	cout << "close command, line " << __LINE__ << "\tsender: " << client1_sd << "\n";
+	cout << "\t\t\tin CloseCommand, line " << __LINE__ << "\n";
 
 	//kill thread of game - to end game
 	pthread_exit(NULL);

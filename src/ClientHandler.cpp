@@ -16,7 +16,7 @@ void ClientHandler::handleClient(int client_sd, pthread_t tid) {
 	//read string of command from given client
 	string command = readString(client_sd);
 
-	cout << "\t\t\tin ClientHandler: after read, command: " << command << "\n"; //TODO
+	cout << "\tin ClientHandler: after read, command: " << command << "\n"; //TODO
 
 	//if a problem occurred - close socket and terminate thread
 	if(command == "") {
@@ -41,8 +41,6 @@ void ClientHandler::handleClient(int client_sd, pthread_t tid) {
 
 	//execute command
 	CommandsManager::getInstance()->executeCommand(command, args, tid);
-
-	cout << "\t\t\tpassed line" << __LINE__ << "\n";
 	//explanation - will either open a game in the game lists, and exit thread, or create new thread to play a game (via join)
 }
 
@@ -52,8 +50,6 @@ string ClientHandler::readString(int client_sd) {
 
 	//read string sent
 	int n = read(client_sd, str, MAX_COMMAND_LENGTH);
-
-	cout << "\t\t\t\tn: "<< (n==-1) << endl;
 
 	if (n == -1) {
 		std::cout << "Error reading string from socket" << std::endl;

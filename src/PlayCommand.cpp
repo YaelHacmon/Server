@@ -21,15 +21,22 @@ void PlayCommand::execute(vector<string>& args, pthread_t& tid) {
 		closeGame(client1_sd, client2_sd);
 	}
 
-	//write row to other player, agreed flag for no moves is (-2)
+	cout << "PlayCommand, row: " << row << "\tline " << __LINE__  << "\n"; //TODO
+
+	//write row to other player, agreed flag for no moves is (-2) in notifying server, (-1) in receiving from server
+	if (row == -2) {
+		//if 'no moves' signal was sent - translate to (-1)
+		row = -1;
+	}
+
 	//if an error occurred -  close game
 	if(!writeNum(row, client1_sd, client2_sd)) {
 		//close game
 		closeGame(client1_sd, client2_sd);
 	}
 
-	//if other player made a move (did not send -2) - read and write column of player's move
-	if (row != -2) {
+	//if other player made a move (row is not -1 now) - read and write column of player's move
+	if (row != -1) {
 		//read column
 		int column = readNum(client1_sd, client2_sd);
 		//if problem occurred - close game

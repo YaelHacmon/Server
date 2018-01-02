@@ -128,8 +128,6 @@ string GamesInfoLists::listWaitingGames() {
 
 
 int GamesInfoLists::startNewGame(string& name, int clientA) {
-	cout << "gameinfolists: name " << name << "\tline " << __LINE__ << "\n"; //TODO
-
 	//check if a game with the given name exists
 	GameInfo* g = findGame(name);
 
@@ -147,19 +145,23 @@ int GamesInfoLists::startNewGame(string& name, int clientA) {
 
 	pthread_mutex_unlock(&vectorMutex_);
 
-	cout << "game created\n";
-
 	//method ended successfully - return 0
 	return 0;
 }
 
 
 GameInfo* GamesInfoLists::joinGame(string& name, int clientB, pthread_t& tid) {
+	cout << "GameInfoLists," << "\tname: " << name << ", clientB: " << clientB  << ", tid: " << tid << "\tline " << __LINE__ << "\n"; //TODO
 	//find game
 	GameInfo* g = findGame(name);
+
+	cout << "GameInfoLists, find game " << "\tline " << __LINE__ << "\n"; //TODO
+
 	//if game is not null and is waiting - join it
 	if (*g != nullGame_ && g->isWaiting()) {
+		cout << "GameInfoLists, game not yet played " << "\tline " << __LINE__ << "\n"; //TODO
 		g->play(clientB, tid);
+		cout << "GameInfoLists, game played " << "\tline " << __LINE__ << "\n"; //TODO
 		return g;
 	}
 
