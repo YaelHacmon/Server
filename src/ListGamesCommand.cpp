@@ -2,6 +2,7 @@
 #include "../include/GamesInfoLists.h"
 #include <unistd.h> //for close()
 #include <cstdlib> //for atoi()
+#include <cstring> //for strncpy
 
 //set maximal string length (for list_games command) to 1024 bytes (1 kb)
 #define MAX_STRING_LENGTH 1024
@@ -28,10 +29,11 @@ void ListGamesCommand::execute(vector<string>& args, pthread_t& tid) {
 
 int ListGamesCommand::writeString(string& s, int client_sd) {
 	//convert to char array
-	const char* str = s.c_str();
+	char str[MAX_STRING_LENGTH];
+	strncpy(str, s.c_str(), MAX_STRING_LENGTH);
 
 	//write number to opponent
-	int n = write(client_sd, str, sizeof(str));
+	int n = write(client_sd, str, MAX_STRING_LENGTH);
 	if (n == -1) {
 		cout << "Error writing string to socket" << endl;
 		return 0;

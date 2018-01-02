@@ -36,13 +36,13 @@ pthread_t& GameInfo::getTID() {
 
 void GameInfo::setTID(pthread_t& id) {
 	pthread_mutex_lock(&tidMutex_);
-	this->tid_ = id;
+	tid_ = id;
 	pthread_mutex_unlock(&tidMutex_);
 }
 
 void GameInfo::setStatus(GameInfo::MatchStatus status) {
 	pthread_mutex_lock(&statusMutex_);
-	this->status_ = status;
+	status_ = status;
 	pthread_mutex_unlock(&statusMutex_);
 }
 

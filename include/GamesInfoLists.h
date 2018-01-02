@@ -32,7 +32,7 @@ public:
 	 *
 	 * In case of game not found - a null game (clientA=-2, name=empty string) is returned
 	 */
-	GameInfo& findGame(int client_sd);
+	GameInfo* findGame(int client_sd);
 
 	/**
 	 * Finds and returns the GameInfo of the game with the given name.
@@ -40,12 +40,12 @@ public:
 	 *
 	 * In case of game not found - a null game (clientA=-2, name=empty string) is returned
 	 */
-	GameInfo& findGame(string& name);
+	GameInfo* findGame(string& name);
 
 	/**
 	 * Removes the given game (game given by name): searches for it in lists and removes from playing lists
 	 */
-	void removeGame(GameInfo& g);
+	void removeGame(GameInfo* g);
 
 	/**
 	 * Removes the game played by given client: searches for it in lists and removes from playing lists
@@ -70,7 +70,7 @@ public:
 	 * @return the updated GameInfo, or a null game (clientA=-2, name=empty string)
 	 * if either no such game exists or given game is already being played
 	 */
-	GameInfo joinGame(string& name, int clientB, pthread_t& tid);
+	GameInfo* joinGame(string& name, int clientB, pthread_t& tid);
 
 	/**
 	 * Returns the socket descriptors of all currently open sockets, in a vector of integers.
@@ -95,7 +95,7 @@ private:
 	static pthread_mutex_t lock_;
 
 	//list of the games waiting to be played or being played
-	std::vector<GameInfo> games_;
+	std::vector<GameInfo*> games_;
 
 	//mutex for locking in code acting on vector
 	pthread_mutex_t vectorMutex_; //TODO
@@ -108,7 +108,7 @@ private:
 	 *
 	 * In case of game not found - end() is returned
 	 */
-	vector<GameInfo>::iterator findGamePosition(int client_sd);
+	vector<GameInfo*>::iterator findGamePosition(int client_sd);
 };
 
 #endif /* GAMESINFOS_H_ */

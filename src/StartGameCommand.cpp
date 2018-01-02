@@ -1,6 +1,5 @@
 #include "../include/StartGameCommand.h"
 #include "../include/GamesInfoLists.h"
-#include "../include/CommunicationManager.h"
 #include <cstdlib> //for atoi()
 #include <unistd.h> //for close(), read(), write()
 

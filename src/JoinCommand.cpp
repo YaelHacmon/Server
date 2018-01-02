@@ -18,12 +18,14 @@ void JoinCommand::execute(vector<string>& args, pthread_t& tid) {
 	string name = args[0];
 	int clientB = atoi(args[1].c_str());
 
+	cout << "join command, line " << __LINE__ << "\tclient: " << clientB  << "\ttid: " << tid << "\n"; //TODO
+
 	//join game
-	GameInfo g = GamesInfoLists::getInstance()->joinGame(name, clientB, tid);
+	GameInfo* g = GamesInfoLists::getInstance()->joinGame(name, clientB, tid);
 
 	//if returned GameInfo is not the null game (clientA=-2, name=empty string) - ask server to communicate given game
-	if (g != GameInfo("", -2)) {
-		handleGame(g);
+	if (*g != GameInfo("", -2)) {
+		handleGame(*g);
 	}
 
 	//end thread via return from method - game does not exist or is already being played
@@ -86,7 +88,7 @@ string JoinCommand::readString(int client1_sd, int client2_sd) {
 	char str[MAX_COMMAND_LENGTH];
 
 	//read string sent
-	int n = read(client1_sd, str, sizeof(str));
+	int n = read(client1_sd, str, MAX_COMMAND_LENGTH);
 	if (n == -1) {
 		cout << "Error reading string from socket" << endl;
 		return "";

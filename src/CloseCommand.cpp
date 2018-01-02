@@ -22,6 +22,8 @@ void CloseCommand::execute(vector<string>& args, pthread_t& tid) {
 	//remove from list - by client 1 (arbitrary, it doens't matter)
 	GamesInfoLists::getInstance()->removeGame(client1_sd);
 
+	cout << "close command, line " << __LINE__ << "\tsender: " << client1_sd << "\n";
+
 	//kill thread of game - to end game
 	pthread_exit(NULL);
 }

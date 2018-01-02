@@ -40,17 +40,11 @@ CommandsManager::~CommandsManager() {
 }
 
 void CommandsManager::executeCommand(string& command, vector<string>& args, pthread_t& tid) {
-	cout << "commands manager" << __LINE__ << "\n";
-
 	//get the correct command from map
 	Command *commandObj = commandsMap[command];
 
-	cout << "\tgot command" << __LINE__ << "\n";
-
 	//execute the command
 	commandObj->execute(args, tid);
-
-	cout << "\texecute command" << __LINE__ << "\n";
 }
 
 void CommandsManager::resetInstance() {

@@ -1,6 +1,5 @@
 #include "../include/Server.h"
 #include "../include/GamesInfoLists.h"
-#include "../include/CommunicationManager.h"
 
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -69,15 +68,14 @@ void Server::start(){
 	//start listening for clients
 	listen(serverSocket, MAX_CONNECTED_CLIENTS);
 
-	acceptClients((void *)&serverSocket); //TODO
+	//acceptClients((void *)&serverSocket); //TODO
 
-	/*TODO
 	//create thread for accepting clients
 	int rc = pthread_create(&serverThreadId, NULL, acceptClients, (void *)&serverSocket);
 	if (rc) {
 		cout << "Error: unable to create thread, " << rc << endl;
 		exit(-1);
-	}*/
+	}
 
 	//exit thread - return to main
 }
@@ -111,6 +109,8 @@ void Server::stop() {
 
 
 void* Server::acceptClients(void* socket) {
+	cout << "\tin accept clients\n"; //TODO
+
 	long* serverSocket = (long*) socket;
 	// Define the client socket's structures
 	struct sockaddr_in clientAddress;
@@ -130,9 +130,8 @@ void* Server::acceptClients(void* socket) {
 			throw "Error on accept";
 		}
 
-		handleSingleClient((void *)&clientSocket); //TODO
+		//handleSingleClient((void *)&clientSocket); //TODO
 
-		/*TODO
 		//short thread   no need to keep thread id
 		pthread_t threadId;
 		int rc = pthread_create(&threadId, NULL, handleSingleClient, (void *)&clientSocket);
@@ -141,7 +140,7 @@ void* Server::acceptClients(void* socket) {
 			cout << "Error: unable to create thread, " << rc << endl;
 			pthread_exit(NULL);
 		}
-*/
+
 		//keep on accepting
 	}
 

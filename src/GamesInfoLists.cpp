@@ -20,8 +20,15 @@ GamesInfoLists *GamesInfoLists::getInstance()
 //games_ vector will be initialized via default c'tor
 GamesInfoLists::GamesInfoLists(): nullGame_("", -2) {}
 
-//vector will release elements, no memory to free in real instance
-GamesInfoLists::~GamesInfoLists() {}
+
+GamesInfoLists::~GamesInfoLists() {
+	//release GameInfos
+	for (vector<GameInfo*>::iterator iter = games_.begin(); iter != games_.end(); iter++) {
+		//delete games Info
+		delete *iter;
+	}
+
+}
 
 void GamesInfoLists::resetInstance() {
 	delete instance_; // REM : it works even if the pointer is NULL (does nothing then)
@@ -29,26 +36,26 @@ void GamesInfoLists::resetInstance() {
 }
 
 
-GameInfo& GamesInfoLists::findGame(int client_sd) {
+GameInfo* GamesInfoLists::findGame(int client_sd) {
 	//search played games
-	for (vector<GameInfo>::iterator iter = games_.begin(); iter != games_.end(); iter++) {
+	for (vector<GameInfo*>::iterator iter = games_.begin(); iter != games_.end(); iter++) {
 		//if given client is one of the playing clients
-		if (iter->getClientA() == client_sd || iter->getClientB() == client_sd) {
-			//return game name
+		if ((*iter)->getClientA() == client_sd || (*iter)->getClientB() == client_sd) {
+			//return game
 			return *iter;
 		}
 	}
 
 	//else - return null game
-	return nullGame_;
+	return &nullGame_;
 }
 
 
-vector<GameInfo>::iterator GamesInfoLists::findGamePosition(int client_sd) {
+vector<GameInfo*>::iterator GamesInfoLists::findGamePosition(int client_sd) {
 	//search played games
-	for (vector<GameInfo>::iterator iter = games_.begin(); iter != games_.end(); iter++) {
+	for (vector<GameInfo*>::iterator iter = games_.begin(); iter != games_.end(); iter++) {
 		//if given client is one of the playing clients
-		if (iter->getClientA() == client_sd || iter->getClientB() == client_sd) {
+		if ((*iter)->getClientA() == client_sd || (*iter)->getClientB() == client_sd) {
 			//return iter
 			return iter;
 		}
@@ -58,24 +65,27 @@ vector<GameInfo>::iterator GamesInfoLists::findGamePosition(int client_sd) {
 	return games_.end();
 }
 
-GameInfo& GamesInfoLists::findGame(string& name) {
+GameInfo* GamesInfoLists::findGame(string& name) {
 	//search played games
-	for (vector<GameInfo>::iterator iter = games_.begin(); iter != games_.end(); iter++) {
+	for (vector<GameInfo*>::iterator iter = games_.begin(); iter != games_.end(); iter++) {
 		//if we found the given game
-		if (iter->getGameName() == name) {
+		if ((*iter)->getGameName() == name) {
 			//return game info
-			return *iter;
+			return (*iter);
 		}
 	}
 
 	//else - return null game
-	return nullGame_;
+	return &nullGame_;
 }
 
 
-void GamesInfoLists::removeGame(GameInfo& g) {
+void GamesInfoLists::removeGame(GameInfo* g) {
 	//find game's position in vector
-	vector<GameInfo>::iterator pos = find(games_.begin(), games_.end(), g);
+	vector<GameInfo*>::iterator pos = find(games_.begin(), games_.end(), g);
+
+	//delete GameInfo pointer
+	delete *pos;
 
 	//lock - this is a common resource, we must protect
 	pthread_mutex_lock(&vectorMutex_);
@@ -89,7 +99,10 @@ void GamesInfoLists::removeGame(GameInfo& g) {
 
 void GamesInfoLists::removeGame(int client_sd) {
 	//find game's position in vector
-	vector<GameInfo>::iterator pos = findGamePosition(client_sd);
+	vector<GameInfo*>::iterator pos = findGamePosition(client_sd);
+
+	//delete GameInfo pointer
+	delete *pos;
 
 	//lock - this is a common resource, we must protect
 	pthread_mutex_lock(&vectorMutex_);
@@ -103,11 +116,11 @@ void GamesInfoLists::removeGame(int client_sd) {
 
 string GamesInfoLists::listWaitingGames() {
 	string list = "";
-	for (vector<GameInfo>::const_iterator iter = games_.begin(); iter != games_.end(); iter++) {
+	for (vector<GameInfo*>::const_iterator iter = games_.begin(); iter != games_.end(); iter++) {
 		//if this is a waiting game
-		if (iter->isWaiting()) {
+		if ((*iter)->isWaiting()) {
 			//add game name to list with space between
-			list = list + iter->getGameName() + " ";
+			list = list + (*iter)->getGameName() + " ";
 		}
 	}
 	return list;
@@ -115,11 +128,13 @@ string GamesInfoLists::listWaitingGames() {
 
 
 int GamesInfoLists::startNewGame(string& name, int clientA) {
+	cout << "gameinfolists: name " << name << "\tline " << __LINE__ << "\n"; //TODO
+
 	//check if a game with the given name exists
-	GameInfo g = findGame(name);
+	GameInfo* g = findGame(name);
 
 	//if game is not null - a game with the given name exists, return 1
-	if (g != nullGame_) {
+	if (*g != nullGame_) {
 		return 1;
 	}
 
@@ -128,7 +143,7 @@ int GamesInfoLists::startNewGame(string& name, int clientA) {
 
 	//lock - this is a common resource, we must protect
 	pthread_mutex_lock(&vectorMutex_);
-	games_.push_back(*game);
+	games_.push_back(game);
 
 	pthread_mutex_unlock(&vectorMutex_);
 
@@ -139,30 +154,30 @@ int GamesInfoLists::startNewGame(string& name, int clientA) {
 }
 
 
-GameInfo GamesInfoLists::joinGame(string& name, int clientB, pthread_t& tid) {
+GameInfo* GamesInfoLists::joinGame(string& name, int clientB, pthread_t& tid) {
 	//find game
-	GameInfo g = findGame(name);
+	GameInfo* g = findGame(name);
 	//if game is not null and is waiting - join it
-	if (g != nullGame_ && g.isWaiting()) {
-		g.play(clientB, tid);
+	if (*g != nullGame_ && g->isWaiting()) {
+		g->play(clientB, tid);
 		return g;
 	}
 
 	//else - game does not exist or is being played - return null game
-	return nullGame_;
+	return &nullGame_;
 }
 
 
 vector<int> GamesInfoLists::getAllOpenSockets() {
 	vector<int> sockets;
 
-	for (vector<GameInfo>::const_iterator iter = games_.begin(); iter != games_.end(); iter++) {
+	for (vector<GameInfo*>::const_iterator iter = games_.begin(); iter != games_.end(); iter++) {
 		//push first client into vector
-		sockets.push_back(iter->getClientA());
+		sockets.push_back((*iter)->getClientA());
 
 		//if game is not waiting (=game is playing) - add also second client (second client is also an open socket)
-		if (!iter->isWaiting()) {
-			sockets.push_back(iter->getClientB());
+		if (!(*iter)->isWaiting()) {
+			sockets.push_back((*iter)->getClientB());
 		}
 	}
 
@@ -172,10 +187,10 @@ vector<int> GamesInfoLists::getAllOpenSockets() {
 vector<pthread_t> GamesInfoLists::getAllThreadIDs() {
 	vector<pthread_t> threads;
 
-	for (vector<GameInfo>::iterator iter = games_.begin(); iter != games_.end(); iter++) {
+	for (vector<GameInfo*>::iterator iter = games_.begin(); iter != games_.end(); iter++) {
 		//if game is not waiting (=game is playing) - add thread's id
-		if (!iter->isWaiting()) {
-			threads.push_back(iter->getTID());
+		if (!(*iter)->isWaiting()) {
+			threads.push_back((*iter)->getTID());
 		}
 	}
 
