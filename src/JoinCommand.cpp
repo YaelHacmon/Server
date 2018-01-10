@@ -18,16 +18,11 @@ void JoinCommand::execute(vector<string>& args, pthread_t& tid) {
 	string name = args[0];
 	int clientB = atoi(args[1].c_str());
 
-	cout << "join command, line " << __LINE__ << "\tclient: " << clientB  << "\ttid: " << tid << "\n"; //TODO
-
 	//join game
 	GameInfo* g = GamesInfoLists::getInstance()->joinGame(name, clientB, tid);
 
-	cout << "join command, line " << __LINE__ << "\tclient: " << clientB  << "\ttid: " << tid << "\n"; //TODO
-
 	//if returned GameInfo is not the null game (clientA=-2, name=empty string) - ask server to communicate given game
 	if (*g != GameInfo("", -2)) {
-		cout << "join command, handling game, line " << __LINE__  << "\n"; //TODO
 		handleGame(*g);
 	}
 
@@ -62,8 +57,6 @@ void JoinCommand::handleGame(GameInfo& g) {
 			exitThread(g.getClientA(), g.getClientB());
 		}
 
-		cout << "\t\tin JoinCommand: after read, command: " << command << "\n"; //TODO
-
 		//split command by space
 		vector<string> args = Utility::split(command);
 
@@ -79,17 +72,11 @@ void JoinCommand::handleGame(GameInfo& g) {
 		//sd of client 2
 		args.insert(args.end(), Utility::toString(g.getClientB())); //add to arguments
 
-		cout << "\t\tin JoinCommand: line " << __LINE__  << "\n"; //TODO
-
 		//execute command
 		CommandsManager::getInstance()->executeCommand(command, args, g.getTID());
 
-		cout << "\t\tin JoinCommand: line " << __LINE__  << "\n"; //TODO
-
 		//switch players and keep communicating game
 		g.swapClients();
-
-		cout << "\t\tin JoinCommand: line " << __LINE__  << "\n"; //TODO
 
 	}//end of game loop - will end via killing thread ("close" command)
 }

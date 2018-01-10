@@ -21,8 +21,6 @@ void PlayCommand::execute(vector<string>& args, pthread_t& tid) {
 		closeGame(client1_sd, client2_sd);
 	}
 
-	cout << "PlayCommand, row: " << row << "\tline " << __LINE__  << "\n"; //TODO
-
 	//write row to other player, agreed flag for no moves is (-2) in notifying server, (-1) in receiving from server
 	if (row == -2) {
 		//if 'no moves' signal was sent - translate to (-1)

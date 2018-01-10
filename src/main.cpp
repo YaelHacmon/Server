@@ -1,7 +1,6 @@
 #include <iostream>
 #include <stdlib.h> //for exit(-1)
 
-#include "../include/CommunicationManager.h"
 #include "../include/GamesInfoLists.h"
 #include "../include/Server.h"
 

@@ -151,17 +151,12 @@ int GamesInfoLists::startNewGame(string& name, int clientA) {
 
 
 GameInfo* GamesInfoLists::joinGame(string& name, int clientB, pthread_t& tid) {
-	cout << "GameInfoLists," << "\tname: " << name << ", clientB: " << clientB  << ", tid: " << tid << "\tline " << __LINE__ << "\n"; //TODO
 	//find game
 	GameInfo* g = findGame(name);
 
-	cout << "GameInfoLists, find game " << "\tline " << __LINE__ << "\n"; //TODO
-
 	//if game is not null and is waiting - join it
 	if (*g != nullGame_ && g->isWaiting()) {
-		cout << "GameInfoLists, game not yet played " << "\tline " << __LINE__ << "\n"; //TODO
 		g->play(clientB, tid);
-		cout << "GameInfoLists, game played " << "\tline " << __LINE__ << "\n"; //TODO
 		return g;
 	}
 

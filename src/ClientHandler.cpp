@@ -11,12 +11,8 @@ using namespace std;
 ClientHandler::ClientHandler() {}
 
 void ClientHandler::handleClient(int client_sd, pthread_t tid) {
-	cout << "\tin ClientHandler: handle client " << client_sd << "\n"; //TODO
-
 	//read string of command from given client
 	string command = readString(client_sd);
-
-	cout << "\tin ClientHandler: after read, command: " << command << "\n"; //TODO
 
 	//if a problem occurred - close socket and terminate thread
 	if(command == "") {

@@ -102,15 +102,11 @@ void Server::stop() {
 
 	//close server socket
 	close(serverSocket);
-	cout << "Server stopped" << endl;
-
 	//exit server by ending stop() method
 }
 
 
 void* Server::acceptClients(void* socket) {
-	cout << "\tin accept clients\n"; //TODO
-
 	long* serverSocket = (long*) socket;
 	// Define the client socket's structures
 	struct sockaddr_in clientAddress;
@@ -118,15 +114,10 @@ void* Server::acceptClients(void* socket) {
 	socklen_t clientAddressLen = sizeof(clientAddress);
 
 	while (true) {
-		cout << "Waiting for client connections..." << endl;
-
 		// Accept a new client connection
 		int clientSocket = accept(*serverSocket, (struct sockaddr *)&clientAddress, &clientAddressLen);
 
-		cout << "Client connected" << endl;
-
 		if (clientSocket == -1) {
-			cout << "Error on accept\n";
 			throw "Error on accept";
 		}
 
@@ -150,8 +141,6 @@ void* Server::acceptClients(void* socket) {
 
 
 void* Server::handleSingleClient(void* info) {
-	cout << "\tin handle single client\n"; //TODO
-
 	//cast to long and then to int (as instructed in class - problem with casting stright to int)
 	Server::ClientHandleInfo* clientInfo = (Server::ClientHandleInfo*) info;
 
