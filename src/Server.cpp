@@ -13,6 +13,7 @@
 
 
 #define MAX_CONNECTED_CLIENTS 10
+#define THREADS_NUM 5
 //set maximal command length to 60 bytes (longest command - start/close <name> - is at most 56 characters)
 #define MAX_COMMAND_LENGTH 60
 
@@ -21,7 +22,7 @@ ClientHandler* Server::handler_ = 0;
 using namespace std;
 
 //vector will be initialized via default c'tor
-Server::Server(const string& fileName, ClientHandler& ch): serverSocket(0) {
+Server::Server(const string& fileName, ClientHandler& ch): serverSocket(0), pool_(THREADS_NUM) {
 	handler_ = &ch;
 
 	ifstream config;
@@ -121,16 +122,18 @@ void* Server::acceptClients(void* socket) {
 			throw "Error on accept";
 		}
 
-		//handleSingleClient((void *)&clientSocket); //TODO
+		//insert new task into thread pool queue
+		pool_.addTask(new Task(handleSingleClient, (void *)&clientSocket));
 
-		//short thread   no need to keep thread id
-		pthread_t threadId;
-		int rc = pthread_create(&threadId, NULL, handleSingleClient, (void *)&clientSocket);
-
-		if (rc) {
-			cout << "Error: unable to create thread, " << rc << endl;
-			pthread_exit(NULL);
-		}
+		//TODO
+//		//short thread   no need to keep thread id
+//		pthread_t threadId;
+//		int rc = pthread_create(&threadId, NULL, handleSingleClient, (void *)&clientSocket);
+//
+//		if (rc) {
+//			cout << "Error: unable to create thread, " << rc << endl;
+//			pthread_exit(NULL);
+//		}
 
 		//keep on accepting
 	}
@@ -151,6 +154,16 @@ void* Server::handleSingleClient(void* info) {
 	return NULL;
 }
 
+
+void Server::addTaskToPool(Task* t, Server& s) {
+	Server server = (Server)s;
+	server.addTask(t);
+}
+
 ClientHandler& Server::getHandler() {
 	return *handler_;
+}
+
+void Server::addTask(Task* task) {
+	pool_.addTask(task);
 }

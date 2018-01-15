@@ -10,6 +10,7 @@
 #include <vector>
 #include <string>
 #include "ClientHandler.h"
+#include "ThreadPool.h"
 
 using namespace std;
 
@@ -41,10 +42,16 @@ public:
 	 */
 	int getServerSocket();
 
+	/**
+	 * Adds a task to the task queue
+	 */
+	void addTask(Task* task);
+
 private:
 	int port;
 	int serverSocket;
 	pthread_t serverThreadId; //id of acceptClients's thread
+	ThreadPool pool_; //thread pool of threads
 
 	//handler of client - static to make a class member, instead of instance memberWWWWWW
 	static ClientHandler* handler_;
@@ -65,6 +72,17 @@ private:
 	 * @param info - information to use in handling client: socket of client to handle and thread's id
 	 */
 	static void* handleSingleClient(void* info);
+
+	/**
+	 * Wrapper private static function for adding a task.
+	 */
+	static void addTaskToPool(Task* t, Server& s); //TODO
+
+
+	/**
+	 * A static wrapper that calls executeTasks()
+	 */
+	static void *execute(void *arg);
 
 	//struct for passing both thread id and socket to handleSingleClient() method
 	struct ClientHandleInfo {
