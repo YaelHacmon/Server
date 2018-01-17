@@ -39,8 +39,11 @@ class ThreadPool {
 		//flag to mark if pool stopped working
 		bool stopped;
 
-		//lock for queue
+		//lock for checking queue
 		pthread_mutex_t lock;
+
+		//lock for pushing into queue
+		pthread_mutex_t lockPush;
 
 		/**
 		 * A static wrapper that calls executeTasks()

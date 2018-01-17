@@ -1,6 +1,5 @@
 #include "ThreadPool.h"
 #include <unistd.h>
-#include <iostream> //TODO
 
 ThreadPool::ThreadPool(int threadsNum): stopped(false) {
 	threads = new pthread_t[threadsNum];
@@ -8,6 +7,7 @@ ThreadPool::ThreadPool(int threadsNum): stopped(false) {
 		pthread_create(threads + i, NULL, execute,this);
 	}
 	pthread_mutex_init(&lock, NULL);
+	pthread_mutex_init(&lockPush, NULL);
 }
 
 
@@ -21,12 +21,9 @@ void* ThreadPool::execute(void *arg) {
 
 
 void ThreadPool::addTask(Task *task) {
-	std::cout << "\t\t" << __LINE__ << std::endl; //TODO
-	std::cout << tasksQueue.empty() << std::endl; //TODO
-	std::cout << "ThreadPool\t" << __LINE__ << std::endl; //TODO
-
+	pthread_mutex_lock(&lockPush);
 	tasksQueue.push(task);
-	std::cout << "ThreadPool\t" << __LINE__ << std::endl; //TODO
+	pthread_mutex_unlock(&lockPush);
 }
 
 

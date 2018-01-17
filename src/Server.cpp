@@ -24,9 +24,12 @@ using namespace std;
 //vector will be initialized via default c'tor
 Server::Server(const string& fileName, ClientHandler& ch): serverSocket(0), pool_(THREADS_NUM) {
 	handler_ = &ch;
+
 	//initialize info for acceptClients
 	info_.socket = serverSocket;
 	info_.tPool = &pool_;
+
+	//pool_.addTask(new Task(handleSingleClient, (void *)3)); //TODO
 
 	ifstream config;
 	config.open(fileName.c_str(), std::fstream::in);
@@ -72,9 +75,16 @@ void Server::start(){
 	//start listening for clients
 	listen(serverSocket, MAX_CONNECTED_CLIENTS);
 
+	cout << "Server\t" << __LINE__ << endl; //TODO
+	cout << "Server\t" <<  &pool_ << "\t"<< __LINE__ << endl; //TODO
+	cout << "Server\t" <<  info_.tPool << "\t"<< __LINE__ << endl; //TODO
+
 	//create thread for accepting clients
-	int rc = pthread_create(&serverThreadId, NULL, acceptClients, (void *)&serverSocket);
+	//int rc = pthread_create(&serverThreadId, NULL, acceptClients, (void *)&info_); //does not work TODO
+	int rc = pthread_create(&serverThreadId, NULL, acceptClients, (void *)&serverSocket); //does work TODO
+	cout << "Server\t" << __LINE__ << endl; //TODO
 	if (rc) {
+		cout << "Server\t" << __LINE__ << endl; //TODO
 		cout << "Error: unable to create thread, " << rc << endl;
 		exit(-1);
 	}
@@ -93,11 +103,7 @@ void Server::stop() {
 	}
 
 	//then, kill all threads
-	vector<pthread_t> threads = GamesInfoLists::getInstance()->getAllThreadIDs();
-	for (vector<pthread_t>::const_iterator iter = threads.begin(); iter != threads.end(); iter++) {
-		//cancel theard
-		pthread_cancel(*iter);
-	}
+	pool_.terminate();
 
 	//kill thread of accept()
 	pthread_cancel(serverThreadId);
@@ -109,7 +115,11 @@ void Server::stop() {
 
 
 void* Server::acceptClients(void* socket) {
+	cout << "Server\t" << socket << __LINE__ << endl; //TODO
 	Server::AcceptClientInfo* info = (Server::AcceptClientInfo*) socket;
+
+	cout << "Server\t" << info->socket <<"\t"<< __LINE__ << endl; //TODO
+	cout << "Server\t" <<  info->tPool << "\t"<< __LINE__ << endl; //TODO
 
 	//long* serverSocket = (long*) socket; TODO
 	// Define the client socket's structures
@@ -125,7 +135,10 @@ void* Server::acceptClients(void* socket) {
 			throw "Error on accept";
 		}
 
-		cout << "Server\t" << __LINE__ << endl; //TODO
+		cout << "Server\t" <<  info << "\t"<< __LINE__ << endl; //TODO
+		cout << "Server\t" <<  info->tPool << "\t"<< __LINE__ << endl; //TODO
+
+		cout << "Server\t" << "\t"<< __LINE__ << endl; //TODO
 
 		//insert new task into thread pool queue
 		info->tPool->addTask(new Task(handleSingleClient, (void *)&clientSocket));
