@@ -24,6 +24,9 @@ using namespace std;
 //vector will be initialized via default c'tor
 Server::Server(const string& fileName, ClientHandler& ch): serverSocket(0), pool_(THREADS_NUM) {
 	handler_ = &ch;
+	//initialize info for acceptClients
+	info_.socket = serverSocket;
+	info_.tPool = &pool_;
 
 	ifstream config;
 	config.open(fileName.c_str(), std::fstream::in);
@@ -69,8 +72,6 @@ void Server::start(){
 	//start listening for clients
 	listen(serverSocket, MAX_CONNECTED_CLIENTS);
 
-	//acceptClients((void *)&serverSocket); //TODO
-
 	//create thread for accepting clients
 	int rc = pthread_create(&serverThreadId, NULL, acceptClients, (void *)&serverSocket);
 	if (rc) {
@@ -108,7 +109,9 @@ void Server::stop() {
 
 
 void* Server::acceptClients(void* socket) {
-	long* serverSocket = (long*) socket;
+	Server::AcceptClientInfo* info = (Server::AcceptClientInfo*) socket;
+
+	//long* serverSocket = (long*) socket; TODO
 	// Define the client socket's structures
 	struct sockaddr_in clientAddress;
 	//initialize the addresses - to allow for using 'accept' every time
@@ -116,14 +119,18 @@ void* Server::acceptClients(void* socket) {
 
 	while (true) {
 		// Accept a new client connection
-		int clientSocket = accept(*serverSocket, (struct sockaddr *)&clientAddress, &clientAddressLen);
+		int clientSocket = accept(info->socket, (struct sockaddr *)&clientAddress, &clientAddressLen);
 
 		if (clientSocket == -1) {
 			throw "Error on accept";
 		}
 
+		cout << "Server\t" << __LINE__ << endl; //TODO
+
 		//insert new task into thread pool queue
-		pool_.addTask(new Task(handleSingleClient, (void *)&clientSocket));
+		info->tPool->addTask(new Task(handleSingleClient, (void *)&clientSocket));
+
+		cout << "Server\t" << __LINE__ << endl; //TODO
 
 		//TODO
 //		//short thread   no need to keep thread id
@@ -147,23 +154,17 @@ void* Server::handleSingleClient(void* info) {
 	//cast to long and then to int (as instructed in class - problem with casting stright to int)
 	Server::ClientHandleInfo* clientInfo = (Server::ClientHandleInfo*) info;
 
+	cout << "Server\t" << __LINE__ << endl; //TODO
+
 	//handle client
 	getHandler().handleClient(clientInfo->socket, clientInfo->tid);
+
+	cout << "Server\t" << __LINE__ << endl; //TODO
 
 	//must return something - non-void
 	return NULL;
 }
 
-
-void Server::addTaskToPool(Task* t, Server& s) {
-	Server server = (Server)s;
-	server.addTask(t);
-}
-
 ClientHandler& Server::getHandler() {
 	return *handler_;
-}
-
-void Server::addTask(Task* task) {
-	pool_.addTask(task);
 }

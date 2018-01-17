@@ -1,5 +1,6 @@
 #include "ThreadPool.h"
 #include <unistd.h>
+#include <iostream> //TODO
 
 ThreadPool::ThreadPool(int threadsNum): stopped(false) {
 	threads = new pthread_t[threadsNum];
@@ -13,11 +14,19 @@ ThreadPool::ThreadPool(int threadsNum): stopped(false) {
 void* ThreadPool::execute(void *arg) {
 	ThreadPool *pool = (ThreadPool *)arg;
 	pool->executeTasks();
+
+	//must return something - non-void
+	return NULL;
 }
 
 
 void ThreadPool::addTask(Task *task) {
+	std::cout << "\t\t" << __LINE__ << std::endl; //TODO
+	std::cout << tasksQueue.empty() << std::endl; //TODO
+	std::cout << "ThreadPool\t" << __LINE__ << std::endl; //TODO
+
 	tasksQueue.push(task);
+	std::cout << "ThreadPool\t" << __LINE__ << std::endl; //TODO
 }
 
 

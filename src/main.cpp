@@ -4,17 +4,14 @@
 #include "../include/GamesInfoLists.h"
 #include "../include/Server.h"
 
-#define THREADS_NUM 5 //TODO
-
 using namespace std;
 
 int main(){
 	//create client handler
 	ClientHandler handler;
-	ThreadPool pool(THREADS_NUM);
 
 	//create server
-	Server server("server_config.txt", handler, pool);
+	Server server("server_config.txt", handler);
 
 	try {
 		//start server - in thread

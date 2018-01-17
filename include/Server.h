@@ -42,16 +42,20 @@ public:
 	 */
 	int getServerSocket();
 
-	/**
-	 * Adds a task to the task queue
-	 */
-	void addTask(Task* task);
-
 private:
 	int port;
 	int serverSocket;
 	pthread_t serverThreadId; //id of acceptClients's thread
 	ThreadPool pool_; //thread pool of threads
+
+	//struct for passing both thread id and socket to handleSingleClient() method
+	struct AcceptClientInfo {
+		int socket; //socket number
+		ThreadPool* tPool; //pointer to thread pool
+	};
+
+	// info with serversocket and threadpool pointer for passing to static function
+	AcceptClientInfo info_;
 
 	//handler of client - static to make a class member, instead of instance memberWWWWWW
 	static ClientHandler* handler_;
@@ -62,9 +66,9 @@ private:
 	/**
 	 * Endless loop for accepting clients in separate thread.
 	 * Function must be static to be passed to pthread_create()
-	 * @param socket - socket of server to accept with
+	 * @param funcInfo - struct with socket of server to accept with and with threadpool to act on
 	 */
-	static void *acceptClients(void *socket);
+	static void *acceptClients(void *funcInfo);
 
 	/**
 	 * Handles the initial communication with a client: asking to start\join a game and accepting answers
@@ -72,12 +76,6 @@ private:
 	 * @param info - information to use in handling client: socket of client to handle and thread's id
 	 */
 	static void* handleSingleClient(void* info);
-
-	/**
-	 * Wrapper private static function for adding a task.
-	 */
-	static void addTaskToPool(Task* t, Server& s); //TODO
-
 
 	/**
 	 * A static wrapper that calls executeTasks()
