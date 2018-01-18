@@ -61,7 +61,6 @@ void ThreadPool::terminate() {
 
 
 ThreadPool::~ThreadPool() {
-	//TODO
 	//delete existing tasks in queue
 	while (!tasksQueue.empty()) {
 		//if so - remove task from queue

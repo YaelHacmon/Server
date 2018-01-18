@@ -20,9 +20,8 @@ public:
 	 * Updates the game's status and the second client, then calls the method of playing the game
 	 *
 	 * @param args arguments for command's execution, by the set protocol of the certain instance
-	 * @param tid id of current thread
 	 */
-	virtual void execute(vector<string>& args, pthread_t& tid);
+	virtual void execute(vector<string>& args);
 
 protected:
 	/**
@@ -37,9 +36,9 @@ protected:
 	virtual string readString(int client1_sd, int client2_sd);
 
 	/**
-	 * Beautifier method for closing both sockets and killing thread
+	 * Beautifier method for closing both sockets and deleting game memory
 	 */
-	virtual void exitThread(int client1_sd, int client2_sd);
+	virtual void exitGame(GameInfo& g);
 };
 
 #endif /* JOINCOMMAND_H_ */

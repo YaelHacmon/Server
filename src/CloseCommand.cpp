@@ -8,7 +8,7 @@ using namespace std;
 CloseCommand::CloseCommand() {}
 
 
-void CloseCommand::execute(vector<string>& args, pthread_t& tid) {
+void CloseCommand::execute(vector<string>& args) {
 	//find game by client1's sd (arbitrary)
 	GameInfo* g = GamesInfoLists::getInstance()->findGame(args[0]);
 
@@ -17,8 +17,8 @@ void CloseCommand::execute(vector<string>& args, pthread_t& tid) {
 	close(g->getClientB());
 
 	//remove from list - by client 1 (arbitrary, it doens't matter)
+	//game is marked as over by method
 	GamesInfoLists::getInstance()->removeGame(g);
 
-	//kill thread of game - to end game
-	pthread_exit(NULL);
+	//return from method to free thread
 }

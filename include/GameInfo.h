@@ -10,15 +10,16 @@
 
 class GameInfo {
 public:
-	enum MatchStatus {Waiting, Playing};
+	enum MatchStatus {Waiting, Playing, Over};
 
-	//TODO - needed
 	GameInfo();
 
 	/**
 	 * C'tor taking the game name and the first client
 	 */
 	GameInfo(std::string name, int clientA);
+
+	~GameInfo();
 
 	/**
 	 * Getter for client 1
@@ -36,25 +37,30 @@ public:
 	const std::string& getGameName() const;
 
 	/**
-	 * Getter for thread's id. Non-const to allow usage
-	 */
-	pthread_t& getTID();
-
-	/**
 	 * Checks if game is waiting. Returns true if is waiting, false otherwise
 	 */
 	bool isWaiting() const;
 
 	/**
-	 * Play game with given second client, in given thread.
+	 * Play game with given second client.
 	 * If game is not in waiting status - nothing is done
 	 */
-	void play(int clientB, pthread_t id);
+	void play(int clientB);
 
 	/**
 	 * Swaps the two clients, to use when playing the turns in game
 	 */
 	void swapClients();
+
+	/**
+	 * Checks if game is over. Returns true if is over, false otherwise
+	 */
+	bool isOver();
+
+	/**
+	 * Sets status to "over"
+	 */
+	void gameEnded();
 
 	/**
 	 * Overloading of == for checking if two games are equal
@@ -73,16 +79,11 @@ private:
 	int clientA_;
 	int clientB_;
 
-	//thread id of game
-	pthread_t tid_;
-
 	GameInfo::MatchStatus status_;
 
 	pthread_mutex_t statusMutex_;
 	pthread_mutex_t clientAMutex_;
 	pthread_mutex_t clientBMutex_;
-	pthread_mutex_t tidMutex_;
-
 	/**
 	 * Setter for client 1
 	 */
@@ -97,11 +98,6 @@ private:
 	 *  Setter for game status
 	 */
 	void setStatus(GameInfo::MatchStatus status);
-
-	/**
-	 * Setter for thread's id
-	 */
-	void setTID(pthread_t& id);
 };
 
 #endif /* GAMEINFO_H_ */

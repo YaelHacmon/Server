@@ -18,7 +18,10 @@ GamesInfoLists *GamesInfoLists::getInstance()
 }
 
 //games_ vector will be initialized via default c'tor
-GamesInfoLists::GamesInfoLists(): nullGame_("", -2) {}
+GamesInfoLists::GamesInfoLists(): nullGame_("", -2) {
+	pthread_mutex_init(&lock_, NULL);
+	pthread_mutex_init(&vectorMutex_, NULL);
+}
 
 
 GamesInfoLists::~GamesInfoLists() {
@@ -27,7 +30,9 @@ GamesInfoLists::~GamesInfoLists() {
 		//delete games Info
 		delete *iter;
 	}
-
+	//destroy mutex
+	pthread_mutex_destroy(&lock_);
+	pthread_mutex_destroy(&vectorMutex_);
 }
 
 void GamesInfoLists::resetInstance() {
@@ -84,8 +89,8 @@ void GamesInfoLists::removeGame(GameInfo* g) {
 	//find game's position in vector
 	vector<GameInfo*>::iterator pos = find(games_.begin(), games_.end(), g);
 
-	//delete GameInfo pointer
-	delete *pos;
+	//change status - mark game as over for whoever holds and deletes the game
+	g->gameEnded();
 
 	//lock - this is a common resource, we must protect
 	pthread_mutex_lock(&vectorMutex_);
@@ -101,8 +106,8 @@ void GamesInfoLists::removeGame(int client_sd) {
 	//find game's position in vector
 	vector<GameInfo*>::iterator pos = findGamePosition(client_sd);
 
-	//delete GameInfo pointer
-	delete *pos;
+	//change status - mark game as over for whoever holds and deletes the game
+	(*pos)->gameEnded();
 
 	//lock - this is a common resource, we must protect
 	pthread_mutex_lock(&vectorMutex_);
@@ -150,13 +155,13 @@ int GamesInfoLists::startNewGame(string& name, int clientA) {
 }
 
 
-GameInfo* GamesInfoLists::joinGame(string& name, int clientB, pthread_t& tid) {
+GameInfo* GamesInfoLists::joinGame(string& name, int clientB) {
 	//find game
 	GameInfo* g = findGame(name);
 
 	//if game is not null and is waiting - join it
 	if (*g != nullGame_ && g->isWaiting()) {
-		g->play(clientB, tid);
+		g->play(clientB);
 		return g;
 	}
 
@@ -179,17 +184,4 @@ vector<int> GamesInfoLists::getAllOpenSockets() {
 	}
 
 	return sockets;
-}
-
-vector<pthread_t> GamesInfoLists::getAllThreadIDs() {
-	vector<pthread_t> threads;
-
-	for (vector<GameInfo*>::iterator iter = games_.begin(); iter != games_.end(); iter++) {
-		//if game is not waiting (=game is playing) - add thread's id
-		if (!(*iter)->isWaiting()) {
-			threads.push_back((*iter)->getTID());
-		}
-	}
-
-	return threads;
 }

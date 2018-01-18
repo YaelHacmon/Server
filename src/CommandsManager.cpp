@@ -39,12 +39,12 @@ CommandsManager::~CommandsManager() {
 	}
 }
 
-void CommandsManager::executeCommand(string& command, vector<string>& args, pthread_t& tid) {
+void CommandsManager::executeCommand(string& command, vector<string>& args) {
 	//get the correct command from map
 	Command *commandObj = commandsMap[command];
 
 	//execute the command
-	commandObj->execute(args, tid);
+	commandObj->execute(args);
 }
 
 void CommandsManager::resetInstance() {

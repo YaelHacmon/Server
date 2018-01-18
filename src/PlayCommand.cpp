@@ -8,7 +8,7 @@ using namespace std;
 
 PlayCommand::PlayCommand() {}
 
-void PlayCommand::execute(vector<string>& args, pthread_t& tid) {
+void PlayCommand::execute(vector<string>& args) {
 	//get clients - first and second argument, by
 	int client1_sd = atoi(args[0].c_str());
 	int client2_sd = atoi(args[1].c_str());
@@ -60,9 +60,7 @@ void PlayCommand::closeGame(int client1_sd, int client2_sd) {
 	//remove from list - by client 1 (arbitrary, it doens't matter)
 	GamesInfoLists::getInstance()->removeGame(client1_sd);
 
-	//kill thread - an error occured and we cannot keep on playing
-	//(client will read 0 from server and know that server disconnected)
-	pthread_exit(NULL);
+	//return from method - game status has changed to "over"
 }
 
 int PlayCommand::readNum(int client1_sd, int client2_sd) {

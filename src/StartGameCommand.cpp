@@ -7,7 +7,7 @@ using namespace std;
 
 StartGameCommand::StartGameCommand() {}
 
-void StartGameCommand::execute(vector<string>& args, pthread_t& tid) {
+void StartGameCommand::execute(vector<string>& args) {
 	//get given game name (first argument) and client's sd (second argument)
 	string name = args[0];
 	int clientA = atoi(args[1].c_str());

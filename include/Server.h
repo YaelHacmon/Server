@@ -37,25 +37,11 @@ public:
 	 */
 	void stop();
 
-	/**
-	 * Getter for server socket, for use from static functions
-	 */
-	int getServerSocket();
-
 private:
 	int port;
 	int serverSocket;
 	pthread_t serverThreadId; //id of acceptClients's thread
 	ThreadPool pool_; //thread pool of threads
-
-	//struct for passing both thread id and socket to handleSingleClient() method
-	struct AcceptClientInfo {
-		int socket; //socket number
-		ThreadPool* tPool; //pointer to thread pool
-	};
-
-	// info with serversocket and threadpool pointer for passing to static function
-	AcceptClientInfo info_;
 
 	//handler of client - static to make a class member, instead of instance memberWWWWWW
 	static ClientHandler* handler_;
@@ -64,29 +50,33 @@ private:
 	static ClientHandler& getHandler();
 
 	/**
+	 * Getter for server socket, for use from static functions
+	 */
+	int getServerSocket();
+
+	/**
+	 * Getter for thread pool, for use from static functions
+	 */
+	ThreadPool& getThreadPool();
+
+	/**
 	 * Endless loop for accepting clients in separate thread.
 	 * Function must be static to be passed to pthread_create()
-	 * @param funcInfo - struct with socket of server to accept with and with threadpool to act on
+	 * @param s - server to accept through
 	 */
-	static void *acceptClients(void *funcInfo);
+	static void *acceptClients(void *s);
 
 	/**
 	 * Handles the initial communication with a client: asking to start\join a game and accepting answers
 	 * Function must be static to be passed to pthread_create()
-	 * @param info - information to use in handling client: socket of client to handle and thread's id
+	 * @param client_socket socket of client to handle
 	 */
-	static void* handleSingleClient(void* info);
+	static void* handleSingleClient(void* client_socket);
 
 	/**
 	 * A static wrapper that calls executeTasks()
 	 */
 	static void *execute(void *arg);
-
-	//struct for passing both thread id and socket to handleSingleClient() method
-	struct ClientHandleInfo {
-		int socket; //socket number
-		pthread_t tid; //thread id of current thread
-	};
 };
 
 

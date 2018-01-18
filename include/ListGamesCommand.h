@@ -18,9 +18,8 @@ public:
 	 * Gets string with list of waiting games from GamesInfoLists, then sends to given client.
 	 *
 	 * @param args arguments for command's execution, by the set protocol of the certain instance
-	 * @param tid id of current thread
 	 */
-	virtual void execute(std::vector<std::string>& args, pthread_t& tid);
+	virtual void execute(std::vector<std::string>& args);
 
 protected:
 	/**

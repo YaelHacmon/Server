@@ -10,7 +10,7 @@ using namespace std;
 
 ClientHandler::ClientHandler() {}
 
-void ClientHandler::handleClient(int client_sd, pthread_t tid) {
+void ClientHandler::handleClient(int client_sd) {
 	//read string of command from given client
 	string command = readString(client_sd);
 
@@ -36,7 +36,7 @@ void ClientHandler::handleClient(int client_sd, pthread_t tid) {
 	args.insert(args.end(), Utility::toString(client_sd)); //add to arguments
 
 	//execute command
-	CommandsManager::getInstance()->executeCommand(command, args, tid);
+	CommandsManager::getInstance()->executeCommand(command, args);
 	//explanation - will either open a game in the game lists, and exit thread, or create new thread to play a game (via join)
 }
 

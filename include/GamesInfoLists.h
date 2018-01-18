@@ -43,12 +43,14 @@ public:
 	GameInfo* findGame(string& name);
 
 	/**
-	 * Removes the given game (game given by name): searches for it in lists and removes from playing lists
+	 * Removes the given game (game given by name): searches for it in lists and removes from playing lists,
+	 * and marks as over. Does not free the memory
 	 */
 	void removeGame(GameInfo* g);
 
 	/**
-	 * Removes the game played by given client: searches for it in lists and removes from playing lists
+	 * Removes the game played by given client: searches for it in lists and removes from playing lists,
+	 * and marks as over. Does not free the memory
 	 */
 	void removeGame(int client_sd);
 
@@ -65,24 +67,18 @@ public:
 	int startNewGame(string& name, int clientA);
 
 	/**
-	 * Joins given player (by sd) to a given existing game (by name), and the pthread of the current id.
+	 * Joins given player (by sd) to a given existing game (by name).
 	 * Checks that game exists and can be joined.
 	 * @return the updated GameInfo, or a null game (clientA=-2, name=empty string)
 	 * if either no such game exists or given game is already being played
 	 */
-	GameInfo* joinGame(string& name, int clientB, pthread_t& tid);
+	GameInfo* joinGame(string& name, int clientB);
 
 	/**
 	 * Returns the socket descriptors of all currently open sockets, in a vector of integers.
 	 * Used for closing the server
 	 */
 	vector<int> getAllOpenSockets();
-
-	/**
-	 * Returns the socket descriptors of all currently open sockets, in a vector of integers.
-	 * Used for closing the server
-	 */
-	vector<pthread_t> getAllThreadIDs();
 
 private:
 	GamesInfoLists(); // Private c'tor
@@ -98,7 +94,7 @@ private:
 	std::vector<GameInfo*> games_;
 
 	//mutex for locking in code acting on vector
-	pthread_mutex_t vectorMutex_; //TODO
+	pthread_mutex_t vectorMutex_;
 
 	//null game - to avoid recreating each time
 	GameInfo nullGame_;

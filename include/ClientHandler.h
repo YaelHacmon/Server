@@ -14,9 +14,8 @@ public:
 	/**
 	 * Handles the g client of this handler, using the given server.
 	 * @param client_sd socket descriptor of client
-	 * @param tid thread id of current thread
 	 */
-	void handleClient(int client_sd, pthread_t tid);
+	void handleClient(int client_sd);
 
 	/**
 	 * Reads string from client.

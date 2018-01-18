@@ -22,9 +22,8 @@ public:
 	 * Reads the played move as integers then writes to other player (also as integers)
 	 *
 	 * @param args arguments for command's execution, by the set protocol of the certain instance
-	 * @param tid id of current thread
 	 */
-	virtual void execute(std::vector<std::string>& args, pthread_t& tid);
+	virtual void execute(std::vector<std::string>& args);
 
 protected:
 	/**

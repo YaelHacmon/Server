@@ -23,9 +23,8 @@ public:
 	 * Executes a command by the given key and arguments
 	 * @param command key for map
 	 * @param args arguments for command's execution, by the set protocol of the certain instance
-	 * @param tid id of current thread
 	 */
-	void executeCommand(string& command, vector<string>& args, pthread_t& tid);
+	void executeCommand(string& command, vector<string>& args);
 
 private:
 	static CommandsManager* instance_;

@@ -13,13 +13,13 @@ using namespace std;
 JoinCommand::JoinCommand() {}
 
 
-void JoinCommand::execute(vector<string>& args, pthread_t& tid) {
+void JoinCommand::execute(vector<string>& args) {
 	//get given game name (first argument) and client's sd (second argument)
 	string name = args[0];
 	int clientB = atoi(args[1].c_str());
 
 	//join game
-	GameInfo* g = GamesInfoLists::getInstance()->joinGame(name, clientB, tid);
+	GameInfo* g = GamesInfoLists::getInstance()->joinGame(name, clientB);
 
 	//if returned GameInfo is not the null game (clientA=-2, name=empty string) - ask server to communicate given game
 	if (*g != GameInfo("", -2)) {
@@ -35,26 +35,30 @@ void JoinCommand::handleGame(GameInfo& g) {
 	int color = 1;
 	int n = write(g.getClientA(), &color, sizeof(color));
 	if (n == -1) {
-		//if problem occured - close sockets and kill thread
-		exitThread(g.getClientA(), g.getClientB());
+		//if problem occurred - close sockets and return
+		exitGame(g);
+		return;
 	}
 
 	//Sending 2 to client 2 to show him he was the second to enter
 	color = 2;
 	n = write(g.getClientB(), &color, sizeof(color));
 	if (n == -1) {
-		//if problem occured - close sockets and kill thread
-		exitThread(g.getClientA(), g.getClientB());
+		//if problem occurred - close sockets and return
+		exitGame(g);
+		return;
 	}
 
 	//play game - accept commands from players
 	//loop will keep going until thread is terminated
-	while (true) {
+	while (!g.isOver()) {
 		string command = readString(g.getClientA(), g.getClientB());
 
 		//if a problem occurred - close socket and terminate thread (other client has already been notified of disconnection)
 		if(command == "") {
-			exitThread(g.getClientA(), g.getClientB());
+			//if problem occurred - close sockets and return
+			exitGame(g);
+			return;
 		}
 
 		//split command by space
@@ -73,12 +77,17 @@ void JoinCommand::handleGame(GameInfo& g) {
 		args.insert(args.end(), Utility::toString(g.getClientB())); //add to arguments
 
 		//execute command
-		CommandsManager::getInstance()->executeCommand(command, args, g.getTID());
+		CommandsManager::getInstance()->executeCommand(command, args);
 
 		//switch players and keep communicating game
 		g.swapClients();
 
-	}//end of game loop - will end via killing thread ("close" command)
+	}//end of game loop
+
+	//game is over - delete game
+	delete &g;
+
+	//free thread by ending function
 }
 
 
@@ -114,11 +123,14 @@ string JoinCommand::readString(int client1_sd, int client2_sd) {
 }
 
 
-void JoinCommand::exitThread(int client1_sd, int client2_sd) {
-	//close socket (if a socket is closed - does nothing)
-	close(client1_sd);
-	close(client2_sd);
+void JoinCommand::exitGame(GameInfo& g) {
+	//remove from list
+	GamesInfoLists::getInstance()->removeGame(&g);
 
-	//exit thread
-	pthread_exit(NULL);
+	//close socket (if a socket is closed - does nothing)
+	close(g.getClientA());
+	close(g.getClientB());
+
+	//delete game information
+	delete &g;
 }

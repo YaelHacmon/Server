@@ -11,7 +11,7 @@ using namespace std;
 
 ListGamesCommand::ListGamesCommand() {}
 
-void ListGamesCommand::execute(vector<string>& args, pthread_t& tid) {
+void ListGamesCommand::execute(vector<string>& args) {
 	//get given client's sd (first argument)
 	int client = atoi(args[0].c_str());
 

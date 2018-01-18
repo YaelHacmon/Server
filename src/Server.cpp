@@ -25,12 +25,6 @@ using namespace std;
 Server::Server(const string& fileName, ClientHandler& ch): serverSocket(0), pool_(THREADS_NUM) {
 	handler_ = &ch;
 
-	//initialize info for acceptClients
-	info_.socket = serverSocket;
-	info_.tPool = &pool_;
-
-	//pool_.addTask(new Task(handleSingleClient, (void *)3)); //TODO
-
 	ifstream config;
 	config.open(fileName.c_str(), std::fstream::in);
 
@@ -75,16 +69,9 @@ void Server::start(){
 	//start listening for clients
 	listen(serverSocket, MAX_CONNECTED_CLIENTS);
 
-	cout << "Server\t" << __LINE__ << endl; //TODO
-	cout << "Server\t" <<  &pool_ << "\t"<< __LINE__ << endl; //TODO
-	cout << "Server\t" <<  info_.tPool << "\t"<< __LINE__ << endl; //TODO
-
 	//create thread for accepting clients
-	//int rc = pthread_create(&serverThreadId, NULL, acceptClients, (void *)&info_); //does not work TODO
-	int rc = pthread_create(&serverThreadId, NULL, acceptClients, (void *)&serverSocket); //does work TODO
-	cout << "Server\t" << __LINE__ << endl; //TODO
+	int rc = pthread_create(&serverThreadId, NULL, acceptClients, (void *)this);
 	if (rc) {
-		cout << "Server\t" << __LINE__ << endl; //TODO
 		cout << "Error: unable to create thread, " << rc << endl;
 		exit(-1);
 	}
@@ -114,14 +101,9 @@ void Server::stop() {
 }
 
 
-void* Server::acceptClients(void* socket) {
-	cout << "Server\t" << socket << __LINE__ << endl; //TODO
-	Server::AcceptClientInfo* info = (Server::AcceptClientInfo*) socket;
+void* Server::acceptClients(void* s) {
+	Server* server = (Server*) s;
 
-	cout << "Server\t" << info->socket <<"\t"<< __LINE__ << endl; //TODO
-	cout << "Server\t" <<  info->tPool << "\t"<< __LINE__ << endl; //TODO
-
-	//long* serverSocket = (long*) socket; TODO
 	// Define the client socket's structures
 	struct sockaddr_in clientAddress;
 	//initialize the addresses - to allow for using 'accept' every time
@@ -129,31 +111,14 @@ void* Server::acceptClients(void* socket) {
 
 	while (true) {
 		// Accept a new client connection
-		int clientSocket = accept(info->socket, (struct sockaddr *)&clientAddress, &clientAddressLen);
+		int clientSocket = accept(server->getServerSocket(), (struct sockaddr *)&clientAddress, &clientAddressLen);
 
 		if (clientSocket == -1) {
 			throw "Error on accept";
 		}
 
-		cout << "Server\t" <<  info << "\t"<< __LINE__ << endl; //TODO
-		cout << "Server\t" <<  info->tPool << "\t"<< __LINE__ << endl; //TODO
-
-		cout << "Server\t" << "\t"<< __LINE__ << endl; //TODO
-
 		//insert new task into thread pool queue
-		info->tPool->addTask(new Task(handleSingleClient, (void *)&clientSocket));
-
-		cout << "Server\t" << __LINE__ << endl; //TODO
-
-		//TODO
-//		//short thread   no need to keep thread id
-//		pthread_t threadId;
-//		int rc = pthread_create(&threadId, NULL, handleSingleClient, (void *)&clientSocket);
-//
-//		if (rc) {
-//			cout << "Error: unable to create thread, " << rc << endl;
-//			pthread_exit(NULL);
-//		}
+		server->getThreadPool().addTask(new Task(handleSingleClient, (void *)&clientSocket));
 
 		//keep on accepting
 	}
@@ -163,16 +128,13 @@ void* Server::acceptClients(void* socket) {
 }
 
 
-void* Server::handleSingleClient(void* info) {
+void* Server::handleSingleClient(void* client_socket) {
 	//cast to long and then to int (as instructed in class - problem with casting stright to int)
-	Server::ClientHandleInfo* clientInfo = (Server::ClientHandleInfo*) info;
-
-	cout << "Server\t" << __LINE__ << endl; //TODO
+	long* clientSocket = (long*) client_socket;
+	int client = (int) *clientSocket;
 
 	//handle client
-	getHandler().handleClient(clientInfo->socket, clientInfo->tid);
-
-	cout << "Server\t" << __LINE__ << endl; //TODO
+	getHandler().handleClient(client);
 
 	//must return something - non-void
 	return NULL;
@@ -180,4 +142,13 @@ void* Server::handleSingleClient(void* info) {
 
 ClientHandler& Server::getHandler() {
 	return *handler_;
+}
+
+
+int Server::getServerSocket() {
+	return serverSocket;
+}
+
+ThreadPool& Server::getThreadPool() {
+	return pool_;
 }
