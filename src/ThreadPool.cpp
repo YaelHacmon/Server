@@ -1,7 +1,7 @@
 #include "ThreadPool.h"
 #include <unistd.h>
 
-ThreadPool::ThreadPool(int threadsNum): stopped(false) {
+ThreadPool::ThreadPool(int threadsNum): stopped(false), num_threads(threadsNum) {
 	threads = new pthread_t[threadsNum];
 	for (int i = 0; i < threadsNum; i++) {
 		pthread_create(threads + i, NULL, execute,this);
@@ -57,6 +57,11 @@ void ThreadPool::executeTasks() {
 void ThreadPool::terminate() {
 	pthread_mutex_destroy(&lock);
 	stopped = true;
+
+	//TODO - okay?
+	for (int i = 0; i < num_threads; i++) {
+		pthread_cancel(*(threads + i));
+	}
 }
 
 

@@ -39,6 +39,9 @@ class ThreadPool {
 		//flag to mark if pool stopped working
 		bool stopped;
 
+		//number of threads in pool - for terminate
+		int num_threads; // TODO
+
 		//lock for checking queue
 		pthread_mutex_t lock;
 

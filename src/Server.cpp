@@ -81,7 +81,13 @@ void Server::start(){
 
 
 void Server::stop() {
-	//first, close all sockets (clients will automatically try to read, get 0 and understand that server has disconnected)
+	//first, kill all threads
+	pool_.terminate();
+
+	//kill thread of accept()
+	pthread_cancel(serverThreadId);
+
+	//then, close all sockets (clients will automatically try to read, get 0 and understand that server has disconnected)
 	//get vector of all open sockets
 	vector<int> sockets = GamesInfoLists::getInstance()->getAllOpenSockets();
 	//close all sockets
@@ -89,13 +95,7 @@ void Server::stop() {
 		close(*iter);
 	}
 
-	//then, kill all threads
-	pool_.terminate();
-
-	//kill thread of accept()
-	pthread_cancel(serverThreadId);
-
-	//close server socket
+	//finally, close server socket
 	close(serverSocket);
 	//exit server by ending stop() method
 }

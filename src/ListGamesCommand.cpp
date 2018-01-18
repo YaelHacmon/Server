@@ -35,6 +35,8 @@ int ListGamesCommand::writeString(string& s, int client_sd) {
 	//write number to opponent
 	int n = write(client_sd, str, MAX_STRING_LENGTH);
 	if (n == -1) {
+		cout << "server\t" << __LINE__ << endl; //TODO
+
 		cout << "Error writing string to socket" << endl;
 		return 0;
 

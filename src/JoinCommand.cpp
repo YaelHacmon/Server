@@ -97,6 +97,8 @@ string JoinCommand::readString(int client1_sd, int client2_sd) {
 	//read string sent
 	int n = read(client1_sd, str, MAX_COMMAND_LENGTH);
 	if (n == -1) {
+		cout << "server\t" << __LINE__ << endl; //TODO
+
 		cout << "Error reading string from socket" << endl;
 		return "";
 	}else if (n == 0) {
@@ -110,7 +112,7 @@ string JoinCommand::readString(int client1_sd, int client2_sd) {
 
 		//check that writing succeeded (do not use writeNum to avoid infinite loop)
 		if (n == -1) {
-			cout << "Error writing string to socket" << endl;
+			cout << "Error writing -3 to socket" << endl;
 		}
 
 		//closing clients will happen when returning with a error
