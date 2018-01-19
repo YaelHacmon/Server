@@ -85,7 +85,7 @@ void JoinCommand::handleGame(GameInfo& g) {
 	}//end of game loop
 
 	//game is over - delete game
-	delete &g;
+	delete (&g);
 
 	//free thread by ending function
 }
@@ -97,8 +97,6 @@ string JoinCommand::readString(int client1_sd, int client2_sd) {
 	//read string sent
 	int n = read(client1_sd, str, MAX_COMMAND_LENGTH);
 	if (n == -1) {
-		cout << "server\t" << __LINE__ << endl; //TODO
-
 		cout << "Error reading string from socket" << endl;
 		return "";
 	}else if (n == 0) {
@@ -134,5 +132,5 @@ void JoinCommand::exitGame(GameInfo& g) {
 	close(g.getClientB());
 
 	//delete game information
-	delete &g;
+	delete (&g);
 }

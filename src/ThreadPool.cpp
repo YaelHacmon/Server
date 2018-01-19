@@ -56,9 +56,11 @@ void ThreadPool::executeTasks() {
 
 void ThreadPool::terminate() {
 	pthread_mutex_destroy(&lock);
+
+	//stop idle threads
 	stopped = true;
 
-	//TODO - okay?
+	//kill all threads - release from memory and stop active ones
 	for (int i = 0; i < num_threads; i++) {
 		pthread_cancel(*(threads + i));
 	}
