@@ -6,8 +6,7 @@ ThreadPool::ThreadPool(int threadsNum): stopped(false), num_threads(threadsNum) 
 	for (int i = 0; i < threadsNum; i++) {
 		pthread_create(threads + i, NULL, execute,this);
 	}
-	pthread_mutex_init(&lock, NULL);
-	pthread_mutex_init(&lockPush, NULL);
+	pthread_mutex_init(&lock, NULL); //initialize mutex
 }
 
 
@@ -21,9 +20,10 @@ void* ThreadPool::execute(void *arg) {
 
 
 void ThreadPool::addTask(Task *task) {
-	pthread_mutex_lock(&lockPush);
+	//lock and release mutex when pushing
+	pthread_mutex_lock(&lock);
 	tasksQueue.push(task);
-	pthread_mutex_unlock(&lockPush);
+	pthread_mutex_unlock(&lock);
 }
 
 

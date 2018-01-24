@@ -42,11 +42,8 @@ class ThreadPool {
 		//number of threads in pool - for terminate
 		int num_threads; // TODO
 
-		//lock for checking queue
+		//lock for queue
 		pthread_mutex_t lock;
-
-		//lock for pushing into queue
-		pthread_mutex_t lockPush;
 
 		/**
 		 * A static wrapper that calls executeTasks()

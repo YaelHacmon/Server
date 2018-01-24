@@ -39,7 +39,7 @@ int main(){
 		exit(-1);
 	}
 
-	//free singletons
+	//free singletons (releases commands in command manager and gameInfos in list via destructors)
 	GamesInfoLists::resetInstance();
 	CommandsManager::resetInstance();
 
